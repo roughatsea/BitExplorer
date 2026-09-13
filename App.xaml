@@ -1,18 +1,45 @@
 <Application x:Class="WpfApp1.App" xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation" xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml" StartupUri="MainWindow.xaml">
+    <!-- StartupUri above opens MainWindow after WPF creates the Application.
+         Resources are reusable named objects or styles. A brush supplies paint;
+         a style supplies property defaults; a template describes a control's visuals.
+         Colors use #RRGGBB hexadecimal red/green/blue values, not file data.
+         x:Key names an explicitly requested resource. A style with only TargetType
+         applies automatically to controls of that type throughout the application. -->
     <Application.Resources>
+        <!-- Converts a true/false view-model property into WPF's Visibility enum.
+             False becomes Collapsed, so the hidden element takes no layout space. -->
         <BooleanToVisibilityConverter x:Key="BooleanVisibility"/>
+        <!-- Shared palette: change these brushes to update the application theme.
+             StaticResource references below resolve to these objects. -->
         <SolidColorBrush x:Key="CanvasBrush" Color="#10151E"/><SolidColorBrush x:Key="TextBrush" Color="#D5DFED"/>
         <SolidColorBrush x:Key="MutedBrush" Color="#8F9DB1"/><SolidColorBrush x:Key="LineBrush" Color="#293546"/>
         <SolidColorBrush x:Key="AccentBrush" Color="#6CE1CE"/>
+        <!-- Display-mode text formatting favors readable screen-aligned glyphs.
+             SmallLabel is a separate, explicitly named style for section captions. -->
         <Style TargetType="TextBlock"><Setter Property="TextOptions.TextFormattingMode" Value="Display"/></Style>
         <Style x:Key="SmallLabel" TargetType="TextBlock"><Setter Property="Foreground" Value="{StaticResource MutedBrush}"/><Setter Property="FontSize" Value="10"/><Setter Property="FontWeight" Value="SemiBold"/></Style>
+        <!-- A ControlTemplate replaces a button's default Windows appearance.
+             TemplateBinding copies properties from the button onto its drawn Border.
+             ContentPresenter displays the button's label. Triggers adjust that
+             border for hover, press, disabled, and keyboard-focus states. These
+             are visual changes; clicking still uses WPF's normal Button behavior. -->
         <Style TargetType="Button">
             <Setter Property="Background" Value="#243142"/><Setter Property="Foreground" Value="{StaticResource TextBrush}"/><Setter Property="BorderBrush" Value="#35465A"/><Setter Property="BorderThickness" Value="1"/><Setter Property="Padding" Value="12,7"/><Setter Property="Cursor" Value="Hand"/>
             <Setter Property="Template"><Setter.Value><ControlTemplate TargetType="Button"><Border x:Name="ButtonBorder" Background="{TemplateBinding Background}" BorderBrush="{TemplateBinding BorderBrush}" BorderThickness="{TemplateBinding BorderThickness}" CornerRadius="5" Padding="{TemplateBinding Padding}"><ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/></Border><ControlTemplate.Triggers><Trigger Property="IsMouseOver" Value="True"><Setter TargetName="ButtonBorder" Property="BorderBrush" Value="#68BBAF"/></Trigger><Trigger Property="IsPressed" Value="True"><Setter TargetName="ButtonBorder" Property="Opacity" Value="0.7"/></Trigger><Trigger Property="IsEnabled" Value="False"><Setter TargetName="ButtonBorder" Property="Opacity" Value="0.38"/></Trigger><Trigger Property="IsKeyboardFocused" Value="True"><Setter TargetName="ButtonBorder" Property="BorderBrush" Value="#8BE8DA"/></Trigger></ControlTemplate.Triggers></ControlTemplate></Setter.Value></Setter>
         </Style>
+        <!-- BasedOn inherits the ordinary button style, changing only its colors.
+             The nested x:Type finds the implicit style keyed by the Button type. -->
         <Style x:Key="AccentButton" TargetType="Button" BasedOn="{StaticResource {x:Type Button}}"><Setter Property="Background" Value="#204844"/><Setter Property="BorderBrush" Value="#3C9182"/><Setter Property="Foreground" Value="#91F0DF"/></Style>
+        <!-- Text entry keeps WPF's built-in editing behavior. These setters only
+             configure the background, caret, selection highlight, and spacing. -->
         <Style TargetType="TextBox"><Setter Property="Background" Value="#101823"/><Setter Property="Foreground" Value="{StaticResource TextBrush}"/><Setter Property="CaretBrush" Value="#6CE1CE"/><Setter Property="BorderBrush" Value="#3A4A60"/><Setter Property="Padding" Value="8,7"/><Setter Property="VerticalContentAlignment" Value="Center"/><Setter Property="SelectionBrush" Value="#347A72"/></Style>
+        <!-- The normal checkbox template remains; just share text/alignment defaults. -->
         <Style TargetType="CheckBox"><Setter Property="Foreground" Value="{StaticResource TextBrush}"/><Setter Property="VerticalContentAlignment" Value="Center"/></Style>
+        <!-- The combo box is drawn from three pieces: a toggle for opening it,
+             a presenter for the current choice, and a popup for all choices.
+             RelativeSource TemplatedParent refers to the ComboBox being styled,
+             whereas ordinary data bindings refer to a view model. PART_Popup is
+             a WPF-recognized template-part name and must match that contract. -->
         <Style TargetType="ComboBox">
             <Setter Property="Foreground" Value="{StaticResource TextBrush}"/><Setter Property="Background" Value="#1F2B3A"/><Setter Property="BorderBrush" Value="#35465A"/><Setter Property="Padding" Value="9,6"/><Setter Property="HorizontalContentAlignment" Value="Left"/><Setter Property="ScrollViewer.CanContentScroll" Value="True"/>
             <Setter Property="Template"><Setter.Value><ControlTemplate TargetType="ComboBox"><Grid>
@@ -21,13 +48,26 @@
                 <Popup x:Name="PART_Popup" Placement="Bottom" IsOpen="{TemplateBinding IsDropDownOpen}" AllowsTransparency="True" Focusable="False" PopupAnimation="Slide"><Border Background="#1E2B3B" BorderBrush="#4C6078" BorderThickness="1" CornerRadius="4" MinWidth="{Binding ActualWidth, RelativeSource={RelativeSource TemplatedParent}}" MaxHeight="320"><ScrollViewer><ItemsPresenter KeyboardNavigation.DirectionalNavigation="Contained"/></ScrollViewer></Border></Popup>
             </Grid></ControlTemplate></Setter.Value></Setter>
         </Style>
+        <!-- Each dropdown choice has its own template and selection/hover colors. -->
         <Style TargetType="ComboBoxItem"><Setter Property="Foreground" Value="{StaticResource TextBrush}"/><Setter Property="Padding" Value="10,8"/><Setter Property="Template"><Setter.Value><ControlTemplate TargetType="ComboBoxItem"><Border x:Name="ChoiceBorder" Background="Transparent" Padding="{TemplateBinding Padding}"><ContentPresenter/></Border><ControlTemplate.Triggers><Trigger Property="IsHighlighted" Value="True"><Setter TargetName="ChoiceBorder" Property="Background" Value="#31515B"/></Trigger><Trigger Property="IsSelected" Value="True"><Setter TargetName="ChoiceBorder" Property="Background" Value="#25433F"/></Trigger></ControlTemplate.Triggers></ControlTemplate></Setter.Value></Setter></Style>
+        <!-- A separator is just a one-unit-high line in the shared border color. -->
         <Style TargetType="Separator"><Setter Property="Background" Value="{StaticResource LineBrush}"/><Setter Property="Template"><Setter.Value><ControlTemplate TargetType="Separator"><Border Height="1" Background="{TemplateBinding Background}"/></ControlTemplate></Setter.Value></Setter></Style>
+        <!-- Tooltips and popup menus use the same dark palette as the main window. -->
         <Style TargetType="ToolTip"><Setter Property="Background" Value="#243343"/><Setter Property="Foreground" Value="#E1EBF5"/><Setter Property="BorderBrush" Value="#4F657F"/><Setter Property="Padding" Value="10"/></Style>
         <Style TargetType="ContextMenu"><Setter Property="Background" Value="#1C2938"/><Setter Property="Foreground" Value="{StaticResource TextBrush}"/><Setter Property="BorderBrush" Value="#43566E"/></Style>
         <Style TargetType="MenuItem"><Setter Property="Background" Value="#1C2938"/><Setter Property="Foreground" Value="{StaticResource TextBrush}"/></Style>
+        <!-- Clicking the track beside a scrollbar thumb repeats a page command.
+             This transparent RepeatButton is the clickable track area. -->
         <Style x:Key="ScrollPage" TargetType="RepeatButton"><Setter Property="Focusable" Value="False"/><Setter Property="Template"><Setter.Value><ControlTemplate TargetType="RepeatButton"><Border Background="Transparent"/></ControlTemplate></Setter.Value></Setter></Style>
+        <!-- A Thumb is WPF's draggable handle. Its appearance changes on hover
+             and drag; the containing Track turns movement into a scroll value. -->
         <Style x:Key="ScrollGrip" TargetType="Thumb"><Setter Property="Template"><Setter.Value><ControlTemplate TargetType="Thumb"><Border x:Name="Grip" Background="#405368" CornerRadius="4" Margin="2"/><ControlTemplate.Triggers><Trigger Property="IsMouseOver" Value="True"><Setter TargetName="Grip" Property="Background" Value="#6A9C9A"/></Trigger><Trigger Property="IsDragging" Value="True"><Setter TargetName="Grip" Property="Background" Value="#6CE1CE"/></Trigger></ControlTemplate.Triggers></ControlTemplate></Setter.Value></Setter></Style>
+        <!-- PART_Track connects the current value, maximum, and viewport size to
+             the draggable thumb and page buttons. ViewportSize describes how much
+             content is visible, which determines the relative thumb length.
+             Vertical scrolling is the default; the orientation trigger substitutes
+             a horizontal template with left/right page commands. These scrollbars
+             are shared by the grid, inspector, and ordinary scrollable controls. -->
         <Style TargetType="ScrollBar"><Setter Property="Background" Value="#151F2B"/><Setter Property="Width" Value="12"/><Setter Property="Template"><Setter.Value><ControlTemplate TargetType="ScrollBar"><Grid Background="{TemplateBinding Background}"><Track x:Name="PART_Track" IsDirectionReversed="True" Orientation="Vertical" Minimum="{TemplateBinding Minimum}" Maximum="{TemplateBinding Maximum}" Value="{TemplateBinding Value}" ViewportSize="{TemplateBinding ViewportSize}"><Track.DecreaseRepeatButton><RepeatButton Command="ScrollBar.PageUpCommand" Style="{StaticResource ScrollPage}"/></Track.DecreaseRepeatButton><Track.Thumb><Thumb Style="{StaticResource ScrollGrip}" MinHeight="20"/></Track.Thumb><Track.IncreaseRepeatButton><RepeatButton Command="ScrollBar.PageDownCommand" Style="{StaticResource ScrollPage}"/></Track.IncreaseRepeatButton></Track></Grid></ControlTemplate></Setter.Value></Setter><Style.Triggers><Trigger Property="Orientation" Value="Horizontal"><Setter Property="Width" Value="Auto"/><Setter Property="Height" Value="12"/><Setter Property="Template"><Setter.Value><ControlTemplate TargetType="ScrollBar"><Grid Background="{TemplateBinding Background}"><Track x:Name="PART_Track" Orientation="Horizontal" Minimum="{TemplateBinding Minimum}" Maximum="{TemplateBinding Maximum}" Value="{TemplateBinding Value}" ViewportSize="{TemplateBinding ViewportSize}"><Track.DecreaseRepeatButton><RepeatButton Command="ScrollBar.PageLeftCommand" Style="{StaticResource ScrollPage}"/></Track.DecreaseRepeatButton><Track.Thumb><Thumb Style="{StaticResource ScrollGrip}" MinWidth="20"/></Track.Thumb><Track.IncreaseRepeatButton><RepeatButton Command="ScrollBar.PageRightCommand" Style="{StaticResource ScrollPage}"/></Track.IncreaseRepeatButton></Track></Grid></ControlTemplate></Setter.Value></Setter></Trigger></Style.Triggers></Style>
     </Application.Resources>
 </Application>

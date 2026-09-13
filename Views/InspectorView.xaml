@@ -2,6 +2,9 @@
              xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:views="clr-namespace:WpfApp1.Views">
+    <!-- This panel inherits InspectorViewModel from MainWindow. Local resources
+         below are available only within this panel; BasedOn extends App.xaml's
+         normal TextBox style. Read-only text boxes still allow selecting/copying. -->
     <UserControl.Resources>
         <Style x:Key="ReadOnlyValue" TargetType="TextBox" BasedOn="{StaticResource {x:Type TextBox}}">
             <Setter Property="IsReadOnly" Value="True"/><Setter Property="FontFamily" Value="Consolas"/>
@@ -10,6 +13,8 @@
         </Style>
     </UserControl.Resources>
     <Border Background="#151D29">
+        <!-- Content may exceed the available height, so this panel scrolls
+             independently from the byte grid and the fields list. -->
         <ScrollViewer VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled" Padding="18,19,18,20">
             <StackPanel>
                 <DockPanel LastChildFill="False">
@@ -18,6 +23,8 @@
                 </DockPanel>
                 <TextBlock Text="{Binding OffsetLabel}" FontFamily="Consolas" FontSize="12" Margin="0,16,0,4"/>
                 <TextBlock Text="{Binding SelectionLabel}" Foreground="{StaticResource MutedBrush}" FontSize="11" TextWrapping="Wrap"/>
+                <!-- Two textual representations of the same active byte. Changing
+                     the grid's notation does not change these conversions. -->
                 <Grid Margin="0,17,0,9">
                     <Grid.ColumnDefinitions><ColumnDefinition Width="*"/><ColumnDefinition Width="*"/></Grid.ColumnDefinitions>
                     <StackPanel>
@@ -33,6 +40,9 @@
                     <TextBlock Text="MS bit" Foreground="{StaticResource MutedBrush}" FontSize="10"/>
                     <TextBlock DockPanel.Dock="Right" Text="LS bit" Foreground="{StaticResource MutedBrush}" FontSize="10" HorizontalAlignment="Right"/>
                 </DockPanel>
+                <!-- ItemsControl repeats a DataTemplate for eight BitItemViewModels.
+                     UniformGrid gives them equal widths. Inside the template, bindings
+                     refer to one bit; its FlipCommand remembers the physical position. -->
                 <ItemsControl ItemsSource="{Binding Bits}" IsEnabled="{Binding HasByte}">
                     <ItemsControl.ItemsPanel><ItemsPanelTemplate><UniformGrid Columns="8"/></ItemsPanelTemplate></ItemsControl.ItemsPanel>
                     <ItemsControl.ItemTemplate>
@@ -40,6 +50,8 @@
                             <StackPanel Margin="1">
                                 <TextBlock Text="{Binding Label}" HorizontalAlignment="Center" Foreground="{StaticResource MutedBrush}" FontSize="11" Margin="0,0,0,5"/>
                                 <Button Content="{Binding Value}" Command="{Binding FlipCommand}" ToolTip="{Binding ToolTip}" AutomationProperties.Name="{Binding AutomationName}" Padding="0,8" FontFamily="Consolas" FontSize="16">
+                                    <!-- Color follows IsSet, independently of the
+                                         printed bit number (which is configurable). -->
                                     <Button.Style>
                                         <Style TargetType="Button" BasedOn="{StaticResource {x:Type Button}}">
                                             <Style.Triggers><DataTrigger Binding="{Binding IsSet}" Value="True">
@@ -54,6 +66,8 @@
                 </ItemsControl>
                 <TextBlock Text="Click a bit to flip it. Undo is always available." Foreground="{StaticResource MutedBrush}" FontSize="10" Margin="0,8,0,14" TextWrapping="Wrap"/>
                 <TextBlock Text="{Binding ByteEditLabel}" Style="{StaticResource SmallLabel}" Margin="0,0,0,6"/>
+                <!-- Typing updates the draft string immediately, but only Apply
+                     or Enter validates the draft and changes the document byte. -->
                 <DockPanel>
                     <Button DockPanel.Dock="Right" Content="Apply" Command="{Binding ApplyByteCommand}" Margin="8,0,0,0"/>
                     <TextBox x:Name="ByteInput" Text="{Binding ByteInput, UpdateSourceTrigger=PropertyChanged}" IsEnabled="{Binding HasByte}" FontFamily="Consolas" AutomationProperties.Name="Byte value">
@@ -62,6 +76,8 @@
                 </DockPanel>
                 <Separator Margin="0,20"/>
                 <TextBlock Text="SELECTION INTERPRETATION" Style="{StaticResource SmallLabel}" Margin="0,0,0,10"/>
+                <!-- The index maps to file order, reversed byte groups, or the
+                     named field's explicit bit order. Saved mapping requires a field. -->
                 <ComboBox SelectedIndex="{Binding InterpretationOrderIndex}">
                     <ComboBoxItem Content="Big-endian · file order"/>
                     <ComboBoxItem Content="Little-endian · reverse bytes"/>
@@ -69,13 +85,20 @@
                 </ComboBox>
                 <TextBlock Text="{Binding SignificanceLabel}" FontSize="11" Foreground="{StaticResource MutedBrush}" Margin="0,9,0,12" TextWrapping="Wrap"/>
                 <TextBlock Text="UNSIGNED DECIMAL" Style="{StaticResource SmallLabel}"/>
+                <!-- TextBox.Text normally supports writing back. Mode=OneWay is
+                     explicit here because these values are computed, getter-only properties. -->
                 <TextBox Text="{Binding SelectionDecimal, Mode=OneWay}" Style="{StaticResource ReadOnlyValue}"/>
                 <TextBlock Text="SIGNED DECIMAL" Style="{StaticResource SmallLabel}"/>
                 <TextBox Text="{Binding SelectionSigned, Mode=OneWay}" Style="{StaticResource ReadOnlyValue}"/>
                 <TextBlock Text="HEX" Style="{StaticResource SmallLabel}"/>
                 <TextBox Text="{Binding SelectionHex, Mode=OneWay}" Style="{StaticResource ReadOnlyValue}"/>
                 <TextBlock Text="{Binding FieldEnds}" FontSize="11" Foreground="{StaticResource MutedBrush}" TextWrapping="Wrap"/>
+                <!-- Label editing belongs to the sibling Fields view model. Walk
+                     up to the Window and read its DataContext.Fields command instead
+                     of duplicating label logic in the inspector. -->
                 <Button Content="+  Label selected bits" Command="{Binding DataContext.Fields.AddLabelCommand, RelativeSource={RelativeSource AncestorType=Window}}" Margin="0,13,0,0"/>
+                <!-- The converter maps true to Visible and false to Collapsed,
+                     which also removes the unused panel from the layout. -->
                 <StackPanel Visibility="{Binding HasSelectedField, Converter={StaticResource BooleanVisibility}}">
                     <Separator Margin="0,20"/>
                     <TextBlock Text="{Binding SelectedFieldName}" FontSize="16" FontWeight="SemiBold"/>
@@ -92,6 +115,8 @@
                         <Button Content="Delete label" Command="{Binding DataContext.Fields.DeleteLabelCommand, RelativeSource={RelativeSource AncestorType=Window}}"/>
                     </StackPanel>
                 </StackPanel>
+                <!-- A separate view model owns display preferences. Assign it as
+                     the nested panel's context instead of the inspector context. -->
                 <Expander x:Name="DisplayExpander" Header="Display settings" Margin="0,22,0,0" Foreground="{StaticResource TextBrush}">
                     <views:DisplayOptionsView DataContext="{Binding DataContext.Display, RelativeSource={RelativeSource AncestorType=Window}}"/>
                 </Expander>

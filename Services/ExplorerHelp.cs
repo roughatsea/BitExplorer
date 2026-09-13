@@ -1,7 +1,9 @@
 namespace WpfApp1.Services;
 
+/// <summary>Keeps the user-facing help text separate from commands and view layout.</summary>
 internal static class ExplorerHelp
 {
+    // A raw string literal preserves the paragraphs without escaped newline characters.
     internal const string Text = """
         Select: click a byte, bit, or ASCII character. Shift-click extends the range; Ctrl-click combines separated bits. Drag to select. Arrow keys move; Shift+arrows extend.
 

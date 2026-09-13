@@ -1,3 +1,5 @@
 <Solution>
+  <!-- The solution opens the desktop project in the IDE. Its project reference
+       brings in Core; the standalone test projects can be run with the README commands. -->
   <Project Path="WpfApp1.csproj" />
 </Solution>

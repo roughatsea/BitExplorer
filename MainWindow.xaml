@@ -8,11 +8,27 @@
         FontFamily="Segoe UI" FontSize="13" WindowStartupLocation="CenterScreen"
         AllowDrop="True" Drop="Window_Drop" DragOver="Window_DragOver" Closing="Window_Closing"
         PreviewKeyDown="Window_PreviewKeyDown" UseLayoutRounding="True">
+    <!-- XAML describes a tree of objects: tags create controls, attributes set
+         their properties, and nested tags supply children or complex property values.
+         x:Class connects this file to MainWindow.xaml.cs. The views: and grid:
+         prefixes let us use our own C# controls alongside built-in WPF controls.
+
+         {Binding Name} reads Name from the inherited DataContext, assigned to
+         MainWindowViewModel in the constructor. {StaticResource Name} looks up
+         a shared style/brush from App.xaml. Disabling this root Grid disables
+         its children during file operations, while the owner Window still exists
+         and can own dialogs. All layout sizes are WPF device-independent units. -->
     <Grid IsEnabled="{Binding IsNotBusy}">
+        <!-- Rows are numbered from zero. Fixed rows hold the title/toolbars/status;
+             * gives the data area all remaining height. Auto elsewhere means
+             "use the size the content needs." A missing Grid.Row defaults to zero. -->
         <Grid.RowDefinitions>
             <RowDefinition Height="76"/><RowDefinition Height="52"/><RowDefinition Height="54"/>
             <RowDefinition Height="*"/><RowDefinition Height="32"/>
         </Grid.RowDefinitions>
+        <!-- Header: brand on the left, current document in the flexible middle,
+             and save state on the right. Margin is outside a control; Padding
+             is inside it. Four-number values mean left, top, right, bottom. -->
         <Border Background="#141B26" BorderBrush="{StaticResource LineBrush}" BorderThickness="0,0,0,1" Padding="22,0">
             <Grid>
                 <Grid.ColumnDefinitions><ColumnDefinition Width="Auto"/><ColumnDefinition Width="*"/><ColumnDefinition Width="Auto"/></Grid.ColumnDefinitions>
@@ -31,6 +47,8 @@
                 </StackPanel>
                 <Border Grid.Column="2" Background="#202C39" CornerRadius="5" VerticalAlignment="Center" Padding="10,6">
                     <TextBlock Text="{Binding DirtyLabel}" FontSize="11">
+                        <!-- A DataTrigger changes appearance when a bound value
+                             matches, so no C# handler needs to recolor this label. -->
                         <TextBlock.Style>
                             <Style TargetType="TextBlock"><Setter Property="Foreground" Value="{StaticResource MutedBrush}"/>
                                 <Style.Triggers><DataTrigger Binding="{Binding HasUnsavedChanges}" Value="True"><Setter Property="Foreground" Value="#E3B86E"/></DataTrigger></Style.Triggers>
@@ -40,6 +58,9 @@
                 </Border>
             </Grid>
         </Border>
+        <!-- Application commands: WPF calls each command's CanExecute to decide
+             whether its button is enabled, then Execute on a click. DockPanel
+             places children against its edges; the More button docks to the right. -->
         <Border Grid.Row="1" Background="#111823" BorderBrush="{StaticResource LineBrush}" BorderThickness="0,0,0,1" Padding="18,7">
             <DockPanel LastChildFill="False">
                 <Button Content="Open file…" Command="{Binding OpenCommand}" ToolTip="Open binary or project (Ctrl+O)" Margin="0,0,7,0"/>
@@ -50,6 +71,10 @@
                 <Button Content="↶  Undo" Command="{Binding UndoCommand}" ToolTip="Ctrl+Z" Margin="0,0,6,0"/>
                 <Button Content="↷  Redo" Command="{Binding RedoCommand}" ToolTip="Ctrl+Y"/>
                 <Button DockPanel.Dock="Right" Content="More  ▾" Click="More_Click">
+                    <!-- A popup menu lives outside the normal visual tree, so it
+                         cannot simply inherit this window's DataContext. Read it
+                         explicitly from PlacementTarget, the button that opened it.
+                         InputGestureText displays a hint; keyboard routing is C#. -->
                     <Button.ContextMenu>
                         <ContextMenu DataContext="{Binding PlacementTarget.DataContext, RelativeSource={RelativeSource Self}}">
                             <MenuItem Header="Go to offset…" InputGestureText="Ctrl+G" Command="{Binding GoToOffsetCommand}"/>
@@ -67,6 +92,9 @@
                 </Button>
             </DockPanel>
         </Border>
+        <!-- Display controls read the nested Display view model. Two-way selector
+             properties send a user's choice back to it. Byte/bit buttons inherit
+             the shared button style, then add an active-mode color trigger. -->
         <Border Grid.Row="2" BorderBrush="{StaticResource LineBrush}" BorderThickness="0,0,0,1" Padding="18,9">
             <DockPanel LastChildFill="False">
                 <StackPanel Orientation="Horizontal">
@@ -89,22 +117,33 @@
                         <ComboBoxItem Content="Hexadecimal"/><ComboBoxItem Content="Decimal"/>
                     </ComboBox>
                     <TextBlock Text="BYTES / ROW" Style="{StaticResource SmallLabel}" VerticalAlignment="Center" Margin="18,0,8,0"/>
+                    <!-- ItemsSource supplies the list; SelectedItem is the chosen
+                         number. Fit mode disables manual row-size selection. -->
                     <ComboBox Width="64" ItemsSource="{Binding Display.RowSizes}" SelectedItem="{Binding Display.BytesPerRow}" IsEnabled="{Binding Display.CanSetBytesPerRow}"/>
                     <CheckBox Content="Fit column" IsChecked="{Binding Display.AutoBytesPerRow}" VerticalAlignment="Center" Margin="12,0,0,0" ToolTip="Adapt bytes per row when the data column is resized"/>
                 </StackPanel>
                 <Button DockPanel.Dock="Right" Content="Display options" Click="DisplayOptions_Click"/>
             </DockPanel>
         </Border>
+        <!-- Three functional panels separated by narrow draggable GridSplitters.
+             These splitters size whole panels; the custom grid independently owns
+             the offset/data/ASCII column widths inside the middle panel. -->
         <Grid Grid.Row="3">
             <Grid.ColumnDefinitions>
                 <ColumnDefinition Width="222" MinWidth="170" MaxWidth="400"/><ColumnDefinition Width="5"/>
                 <ColumnDefinition Width="*" MinWidth="300"/><ColumnDefinition Width="5"/>
                 <ColumnDefinition Width="326" MinWidth="300" MaxWidth="550"/>
             </Grid.ColumnDefinitions>
+            <!-- Replace the inherited context at the panel boundary: bindings
+                 inside FieldsView now refer to FieldsViewModel properties directly. -->
             <views:FieldsView DataContext="{Binding Fields}"/>
             <GridSplitter Grid.Column="1" HorizontalAlignment="Stretch" Background="#202B39"/>
             <Grid Grid.Column="2">
                 <Grid.RowDefinitions><RowDefinition Height="*"/><RowDefinition Height="Auto"/></Grid.RowDefinitions>
+                <!-- CanContentScroll delegates scrolling to ByteGrid's IScrollInfo
+                     implementation. It draws visible rows itself instead of creating
+                     thousands of row controls. The small events here are UI requests;
+                     document/selection are wired as shared objects in code-behind. -->
                 <ScrollViewer CanContentScroll="True" HorizontalScrollBarVisibility="Auto" VerticalScrollBarVisibility="Auto" Focusable="False">
                     <grid:ByteGrid x:Name="DataGrid" EditRequested="Grid_EditRequested" LayoutSettingsChanged="Grid_LayoutSettingsChanged"/>
                 </ScrollViewer>
@@ -115,6 +154,7 @@
             <GridSplitter Grid.Column="3" HorizontalAlignment="Stretch" Background="#202B39"/>
             <views:InspectorView x:Name="InspectorPanel" Grid.Column="4" DataContext="{Binding Inspector}"/>
         </Grid>
+        <!-- Status combines the most recent operation message with the active format. -->
         <Border Grid.Row="4" Background="#16212D" BorderBrush="{StaticResource LineBrush}" BorderThickness="0,1,0,0" Padding="16,0">
             <DockPanel>
                 <TextBlock Text="{Binding Status}" VerticalAlignment="Center" FontSize="11" Foreground="{StaticResource MutedBrush}" TextTrimming="CharacterEllipsis"/>

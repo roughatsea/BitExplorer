@@ -1,6 +1,11 @@
 <Project Sdk="Microsoft.NET.Sdk">
+  <!-- This is the reusable data library. It deliberately targets plain .NET,
+       rather than Windows/WPF, so its binary and formatting rules can be tested
+       without a desktop application or downloaded UI packages. -->
   <PropertyGroup>
     <TargetFramework>net10.0</TargetFramework>
+    <!-- Generate common using directives, and have the compiler warn about
+         references that might be null before they are used. -->
     <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>enable</Nullable>
   </PropertyGroup>

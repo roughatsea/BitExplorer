@@ -1,6 +1,9 @@
 <UserControl x:Class="WpfApp1.Views.FieldsView"
              xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+    <!-- MainWindow supplies FieldsViewModel as this panel's DataContext. These
+         bindings therefore read Count, Items, and commands from that view model.
+         The list gets the remaining (*) height; buttons stay below it. -->
     <Border Background="#131A25" Padding="15,19,12,14">
         <Grid>
             <Grid.RowDefinitions>
@@ -14,18 +17,27 @@
                 <TextBlock x:Name="FieldCount" Text="{Binding Count}" DockPanel.Dock="Right" Foreground="{StaticResource AccentBrush}"/>
             </DockPanel>
             <TextBlock Grid.Row="1" Text="Your map of the data" Foreground="{StaticResource MutedBrush}" Margin="0,7,0,17" FontSize="12"/>
+            <!-- ObservableCollection Items notifies WPF when labels are added or
+                 removed. The two-way SelectedItem binding both displays selection
+                 and sends a clicked row back to the session via FieldsViewModel.
+                 Gesture handlers only determine which command/row should be used. -->
             <ListBox x:Name="FieldList" Grid.Row="2" BorderThickness="0" Background="Transparent"
                      ItemsSource="{Binding Items}" SelectedItem="{Binding SelectedItem, Mode=TwoWay}"
                      MouseDoubleClick="FieldList_MouseDoubleClick" PreviewKeyDown="FieldList_PreviewKeyDown"
                      PreviewMouseRightButtonDown="FieldList_PreviewMouseRightButtonDown"
                      ContextMenuOpening="FieldList_ContextMenuOpening"
                      ScrollViewer.HorizontalScrollBarVisibility="Disabled">
+                <!-- Menus do not inherit the regular control tree's DataContext.
+                     PlacementTarget is this list, so its context supplies commands. -->
                 <ListBox.ContextMenu>
                     <ContextMenu DataContext="{Binding PlacementTarget.DataContext, RelativeSource={RelativeSource Self}}">
                         <MenuItem Header="Edit label…" InputGestureText="F2" Command="{Binding EditLabelCommand}"/>
                         <MenuItem Header="Delete label" InputGestureText="Delete" Command="{Binding DeleteLabelCommand}"/>
                     </ContextMenu>
                 </ListBox.ContextMenu>
+                <!-- The container is the selectable outer shell around each item.
+                     A ControlTemplate defines that shell's visuals. ContentPresenter
+                     inserts the item content described by ItemTemplate below. -->
                 <ListBox.ItemContainerStyle>
                     <Style TargetType="ListBoxItem">
                         <Setter Property="HorizontalContentAlignment" Value="Stretch"/>
@@ -37,6 +49,8 @@
                                     <Border x:Name="ItemBorder" Background="#192230" BorderBrush="#253242" BorderThickness="1" CornerRadius="7" Padding="11">
                                         <ContentPresenter/>
                                     </Border>
+                                    <!-- These triggers inspect control state, unlike
+                                         a DataTrigger that inspects view-model data. -->
                                     <ControlTemplate.Triggers>
                                         <Trigger Property="IsSelected" Value="True">
                                             <Setter TargetName="ItemBorder" Property="Background" Value="#193536"/>
@@ -51,6 +65,9 @@
                         </Setter>
                     </Style>
                 </ListBox.ItemContainerStyle>
+                <!-- WPF repeats this template for each FieldItemViewModel; inside
+                     it, Name/Color/Value refer to that item, not the whole panel.
+                     WPF converts the Color string (such as #54BFA6) into a brush. -->
                 <ListBox.ItemTemplate>
                     <DataTemplate>
                         <StackPanel>
@@ -64,6 +81,8 @@
                     </DataTemplate>
                 </ListBox.ItemTemplate>
             </ListBox>
+            <!-- All entry points use the same commands, so toolbar buttons and
+                 context-menu actions share availability, validation, and undo. -->
             <StackPanel Grid.Row="3" Margin="0,12,0,0">
                 <Grid Margin="0,0,0,8">
                     <Grid.ColumnDefinitions><ColumnDefinition Width="*"/><ColumnDefinition Width="8"/><ColumnDefinition Width="*"/></Grid.ColumnDefinitions>

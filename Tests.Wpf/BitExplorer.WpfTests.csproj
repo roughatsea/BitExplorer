@@ -1,4 +1,6 @@
 <Project Sdk="Microsoft.NET.Sdk">
+  <!-- A console executable prints PASS/FAIL lines. WPF support lets tests
+       construct the real compiled controls in memory without showing windows. -->
   <PropertyGroup>
     <OutputType>Exe</OutputType>
     <TargetFramework>net10.0-windows</TargetFramework>
@@ -6,6 +8,8 @@
     <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>enable</Nullable>
   </PropertyGroup>
+  <!-- Build the application first and make its classes available to the tests.
+       No external testing package is required. -->
   <ItemGroup>
     <ProjectReference Include="../WpfApp1.csproj" />
   </ItemGroup>

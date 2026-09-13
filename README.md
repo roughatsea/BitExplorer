@@ -64,6 +64,8 @@ The core checks cover field interpretation, preservation of neighboring bits, un
 
 ## Code organization
 
+New to programming or WPF? Start with [Reading the code](docs/ReadingTheCode.md), which explains the vocabulary and follows selection, editing, undo, rendering, and file operations through the application. The C#, XAML, and test files also include explanations beside the implementation.
+
 The desktop UI uses composed MVVM: each panel has its own view and view model, and all panels share one exploration session.
 
 - `Core/` contains binary editing, persistence, display formatting, and `BitSelection`. It has no WPF dependency. Selection membership and navigation anchors are separate from the ordered bits used to interpret a named field.

@@ -1,20 +1,29 @@
 <UserControl x:Class="WpfApp1.Views.DisplayOptionsView"
              xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+    <!-- This view expects DisplaySettingsViewModel as DataContext. A StackPanel
+         arranges children vertically. Selection/checkbox bindings use the WPF
+         controls' normal two-way behavior, sending choices back to the view model. -->
     <StackPanel Margin="0,12,0,0">
         <TextBlock Text="OFFSET BASE" Style="{StaticResource SmallLabel}" Margin="0,0,0,5"/>
         <ComboBox SelectedIndex="{Binding OffsetBaseIndex}">
             <ComboBoxItem Content="Hexadecimal"/><ComboBoxItem Content="Decimal"/>
         </ComboBox>
+        <!-- Numbering changes the ruler's labels, not the stored bits or bit weights. -->
         <TextBlock Text="BIT NUMBERING" Style="{StaticResource SmallLabel}" Margin="0,13,0,5"/>
         <ComboBox SelectedIndex="{Binding BitNumberingIndex}">
             <ComboBoxItem Content="LSB is bit 0 · 7 → 0"/><ComboBoxItem Content="MSB is bit 0 · 0 → 7"/>
         </ComboBox>
+        <!-- These switches affect both grid rendering and whole-file text export. -->
         <CheckBox Content="Offset column" IsChecked="{Binding ShowOffsets}" Margin="0,13,0,0"/>
         <CheckBox Content="ASCII column" IsChecked="{Binding ShowAscii}" Margin="0,9,0,0"/>
         <CheckBox Content="Position ruler" IsChecked="{Binding ShowRuler}" Margin="0,9,0,0"/>
         <CheckBox Content="Field annotations in grid / export" IsChecked="{Binding ShowAnnotations}" Margin="0,9,0,0"/>
         <TextBlock Text="COLUMN WIDTHS · PIXELS" Style="{StaticResource SmallLabel}" Margin="0,16,0,6"/>
+        <!-- Width boxes contain draft text. UpdateSourceTrigger=PropertyChanged
+             copies each keystroke into that draft; Apply widths parses all three
+             together before changing settings. AutomationProperties.Name supplies
+             a useful name to accessibility tools even without a nearby text label. -->
         <Grid>
             <Grid.ColumnDefinitions><ColumnDefinition/><ColumnDefinition/><ColumnDefinition/></Grid.ColumnDefinitions>
             <StackPanel>

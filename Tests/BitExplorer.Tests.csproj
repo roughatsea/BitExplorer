@@ -1,4 +1,6 @@
 <Project Sdk="Microsoft.NET.Sdk">
+  <!-- A small executable is the test runner: Program.Main returns a nonzero
+       exit code when a check fails. No separate test framework is required. -->
   <PropertyGroup>
     <OutputType>Exe</OutputType>
     <TargetFramework>net10.0</TargetFramework>
@@ -6,6 +8,7 @@
     <Nullable>enable</Nullable>
   </PropertyGroup>
   <ItemGroup>
+    <!-- Test the same Core library used by the application, not a copied implementation. -->
     <ProjectReference Include="../Core/BitExplorer.Core.csproj" />
   </ItemGroup>
 </Project>

@@ -4,13 +4,24 @@ using BitExplorer.Core;
 
 // Run with: dotnet run --project Tests/BitExplorer.Tests.csproj
 // No test framework or downloaded packages are required.
+/// <summary>A console-based regression suite for the data model and exact text formatting.</summary>
+/// <remarks>
+/// Each test arranges a small known input, performs an operation, and checks the
+/// observable result. The helpers at the bottom throw when an expectation fails.
+/// "partial" lets BitSelectionTests.cs add tests to this same Program class.
+/// </remarks>
 internal static partial class Program
 {
+    // Keep running after individual failures so one run reports all broken scenarios.
     private static int _passed;
     private static int _failed;
+    // Tests own only this per-run directory, underneath their compiled output.
+    // A random name prevents separate runs from overwriting one another's fixtures.
     private static readonly string ArtifactRoot = Path.GetFullPath(Path.Combine(AppContext.BaseDirectory, "test-artifacts"));
     private static readonly string ArtifactDirectory = Path.Combine(ArtifactRoot, Guid.NewGuid().ToString("N"));
 
+    /// <summary>Runs all checks, cleans up temporary fixtures, and returns an automation-friendly exit code.</summary>
+    /// <returns>Zero when everything passed; one when at least one test failed.</returns>
     private static int Main()
     {
         Directory.CreateDirectory(ArtifactDirectory);
@@ -40,6 +51,9 @@ internal static partial class Program
         }
         finally
         {
+            // finally executes even if an unexpected exception escapes a test.
+            // Normalize and check containment before recursive deletion: only the
+            // unique directory created by this run may be removed.
             // Only delete the unique directory created by this process inside our test output.
             var normalizedDirectory = Path.GetFullPath(ArtifactDirectory);
             if (normalizedDirectory.StartsWith(ArtifactRoot + Path.DirectorySeparatorChar, StringComparison.OrdinalIgnoreCase)
@@ -53,6 +67,7 @@ internal static partial class Program
         return _failed == 0 ? 0 : 1;
     }
 
+    /// <summary>Mutating the input array after construction must not alter the document or its baseline.</summary>
     private static void ConstructorOwnsData()
     {
         var source = new byte[] { 0xB3, 0x6C };
@@ -63,6 +78,7 @@ internal static partial class Program
         Equal(false, document.IsByteModified(0));
     }
 
+    /// <summary>Flips each byte's endpoint bits; 128 + 1 must produce hex 81 in both bytes.</summary>
     private static void BitAddressing()
     {
         var document = new DocumentModel(new byte[] { 0, 0 });
@@ -77,6 +93,7 @@ internal static partial class Program
         Sequence(before, document.Data);
     }
 
+    /// <summary>Reads six bits crossing the B3/6C boundary and expects binary 011011, decimal 27.</summary>
     private static void CrossByteField()
     {
         var document = Sample();
@@ -85,6 +102,7 @@ internal static partial class Program
         Equal(new BigInteger(27), document.ReadField(field));
     }
 
+    /// <summary>Writes a crossing field and checks exact destination bytes, proving unrelated bits survived.</summary>
     private static void FieldWritePreservesOtherBits()
     {
         var document = Sample();
@@ -95,6 +113,7 @@ internal static partial class Program
         Equal(new BigInteger(42), document.ReadField(field));
     }
 
+    /// <summary>The same scattered physical bits must produce different values when assembled in reverse order.</summary>
     private static void DiscontiguousFieldOrder()
     {
         var document = Sample();
@@ -110,6 +129,7 @@ internal static partial class Program
         Equal(new BigInteger(10), document.ReadField(reversed));
     }
 
+    /// <summary>A field-value write spanning two bytes must undo as one edit, leaving the earlier label creation intact.</summary>
     private static void FieldEditUndoRedo()
     {
         var document = Sample();
@@ -128,9 +148,12 @@ internal static partial class Program
         Sequence(new byte[] { 0xB5, 0x4C }, document.Data);
     }
 
+    /// <summary>Checks reversed byte order and a 72-bit field, including untouched bits outside its endpoints.</summary>
     private static void WideAndLittleEndianFields()
     {
         var document = Sample();
+        // Range(start, count) generates addresses. Concatenating byte 1 before
+        // byte 0 makes a little-endian interpretation without swapping stored data.
         var littleEndian = Field("LE word", Enumerable.Range(8, 8).Concat(Enumerable.Range(0, 8)).Select(i => (long)i).ToArray());
         Equal(new BigInteger(0x6CB3), document.ReadField(littleEndian));
         document.SetFieldValue(littleEndian, 0x1234);
@@ -138,15 +161,20 @@ internal static partial class Program
 
         var wide = new DocumentModel(new byte[10]);
         var field = Field("72-bit value", Enumerable.Range(3, 72).Select(i => (long)i).ToArray());
+        // Set widely separated bits, including one beyond a 64-bit integer's
+        // range. OR combines those independent powers of two into one value.
         var value = (BigInteger.One << 71) | (BigInteger.One << 37) | 5;
         wide.SetFieldValue(field, value);
         Equal(value, wide.ReadField(field));
+        // These masks select the three untouched leading bits and five untouched
+        // trailing bits. A zero result proves the field write did not leak outside.
         Equal(0, wide.Data[0] & 0xE0);
         Equal(0, wide.Data[9] & 0x1F);
         wide.Undo();
         Sequence(new byte[10], wide.Data);
     }
 
+    /// <summary>Undo followed by a different edit must discard the old redo branch and keep byte highlights accurate.</summary>
     private static void ByteEditHistory()
     {
         var document = Sample();
@@ -164,6 +192,7 @@ internal static partial class Program
         Sequence(new byte[] { 0xB3, 0x22 }, document.Data);
     }
 
+    /// <summary>A three-bit unsigned field rejects -1 and 8 without changing bytes or adding undo entries.</summary>
     private static void InvalidFieldValues()
     {
         var document = Sample();
@@ -176,6 +205,7 @@ internal static partial class Program
         Equal(0, document.Fields.Count); // rejected writes did not enter history.
     }
 
+    /// <summary>Checks duplicate, negative, out-of-file, and over-limit source lists before any field is installed.</summary>
     private static void InvalidFieldDefinitions()
     {
         var document = Sample();
@@ -188,6 +218,7 @@ internal static partial class Program
         Equal(false, document.CanUndo);
     }
 
+    /// <summary>Renaming, changing notes, and deleting labels must all be reversible without losing stable field identity.</summary>
     private static void FieldMetadataHistory()
     {
         var document = Sample();
@@ -210,6 +241,7 @@ internal static partial class Program
         Equal(0, document.Fields.Count);
     }
 
+    /// <summary>Saves and overwrites a binary, reopens exact bytes, then checks Undo against the new saved baseline.</summary>
     private static void BinaryRoundTrip()
     {
         var document = Sample();
@@ -226,6 +258,7 @@ internal static partial class Program
         Equal(true, document.IsByteModified(0)); // undo is measured against the newly saved bytes.
     }
 
+    /// <summary>A zero-byte file is valid data and must reopen without invented bytes or history.</summary>
     private static void EmptyBinaryRoundTrip()
     {
         var path = Artifact("empty.bin");
@@ -236,6 +269,7 @@ internal static partial class Program
         Equal(false, reopened.CanUndo);
     }
 
+    /// <summary>Saves a richly configured project and verifies bytes, ordered fields, Unicode notes, and every changed setting.</summary>
     private static void ProjectRoundTrip()
     {
         var document = Sample();
@@ -259,6 +293,8 @@ internal static partial class Program
         document.NotifySettingsChanged();
         var path = Artifact("sample.bitexplorer.json");
         document.SaveProject(path);
+        // A round trip means write the object, read a new object, then compare
+        // observable values. It catches persistence omissions that in-memory tests miss.
         var reopened = DocumentModel.OpenProject(path);
         Sequence(document.Data, reopened.Data);
         Equal(1, reopened.Fields.Count);
@@ -285,6 +321,7 @@ internal static partial class Program
         Equal(false, reopened.CanUndo);
     }
 
+    /// <summary>Transfers a field layout to different bytes; field values must reflect the destination data, not the source.</summary>
     private static void TemplateRoundTrip()
     {
         var source = Sample();
@@ -306,6 +343,7 @@ internal static partial class Program
         Equal(1, destination.Fields.Count);
     }
 
+    /// <summary>A template containing even one out-of-range field must leave the destination layout, bytes, and history intact.</summary>
     private static void InvalidTemplateIsAtomic()
     {
         var source = Sample();
@@ -323,6 +361,7 @@ internal static partial class Program
         Equal(0, destination.Fields.Count); // failed imports must leave history untouched.
     }
 
+    /// <summary>Malformed JSON must produce a controlled file error for both projects and templates.</summary>
     private static void MalformedPersistence()
     {
         var path = Artifact("malformed.json");
@@ -334,12 +373,16 @@ internal static partial class Program
         Sequence(new byte[] { 0xB3, 0x6C }, document.Data);
     }
 
+    /// <summary>Manually corrupts saved JSON so loading must detect duplicate addresses instead of trusting persisted data.</summary>
     private static void DuplicateTemplateBits()
     {
         var source = Sample();
         source.AddField(Field("Bits", 0, 1));
         var path = Artifact("duplicate.template.json");
         source.ExportTemplate(path);
+        // JsonNode provides an editable JSON tree. The null-forgiving ! is safe
+        // for this fixture because we just wrote the valid file ourselves; the
+        // subsequent mutation deliberately bypasses normal model validation.
         var json = JsonNode.Parse(File.ReadAllText(path))!;
         json["Fields"]![0]!["OrderedBits"] = new JsonArray(0, 0);
         File.WriteAllText(path, json.ToJsonString());
@@ -350,6 +393,7 @@ internal static partial class Program
         Sequence(new byte[] { 0xB3, 0x6C }, destination.Data);
     }
 
+    /// <summary>Checks version rejection and invalid display values by altering an otherwise valid project file.</summary>
     private static void InvalidProjectMetadata()
     {
         var document = Sample();
@@ -369,6 +413,7 @@ internal static partial class Program
         Throws<InvalidDataException>(() => DocumentModel.OpenProject(path));
     }
 
+    /// <summary>Registers the output-format checks with the same runner used for data-model tests.</summary>
     private static void RunFormattingTests()
     {
         Test("hex and decimal notation preserve byte and offset values", NumericFormatting);
@@ -385,6 +430,7 @@ internal static partial class Program
         Test("invalid formatting settings fail before output is written", InvalidFormatting);
     }
 
+    /// <summary>Checks fixed-width notation and confirms large addresses grow instead of being truncated.</summary>
     private static void NumericFormatting()
     {
         Equal("00", DisplayFormatter.FormatByte(0, NumericBase.Hexadecimal));
@@ -398,6 +444,7 @@ internal static partial class Program
         Equal("100000000", DisplayFormatter.FormatOffset(0x100000000, NumericBase.Hexadecimal));
     }
 
+    /// <summary>Changing bit numbering must alter ruler labels without reversing the physical bit string.</summary>
     private static void BitRulers()
     {
         var settings = Settings(2);
@@ -414,11 +461,14 @@ internal static partial class Program
         Equal("000 001", DisplayFormatter.GetRuler(settings));
     }
 
+    /// <summary>Compares the complete hex export, including ruler indentation and padding of the incomplete final row.</summary>
     private static void HexExport()
     {
         var document = new DocumentModel(new byte[] { 0xFF, 0xF0, 0xA1, 0x48, 0x69 });
         var settings = Settings(3);
         settings.ShowRuler = true;
+        // Spaces and \n are part of the expected format, not decorative test
+        // formatting. Comparing the full string detects subtle alignment changes.
         Equal("              00 01 02\n  00000000    FF F0 A1    ...\n  00000003    48 69       Hi\n", Export(document, settings));
         var row = DisplayFormatter.FormatRow(document, 3, settings);
         Equal("00000003", row.Offset);
@@ -426,6 +476,7 @@ internal static partial class Program
         Equal("Hi", row.Ascii);
     }
 
+    /// <summary>Checks three-digit decimal bytes and independently chosen decimal offsets.</summary>
     private static void DecimalExport()
     {
         var document = new DocumentModel(new byte[] { 0xFF, 0xF0, 0xA1, 0x48, 0x69 });
@@ -441,6 +492,7 @@ internal static partial class Program
         Equal("000", lastRow.Data);
     }
 
+    /// <summary>Checks full-file binary output with only the data column visible under both ruler conventions.</summary>
     private static void BitExport()
     {
         var document = new DocumentModel(new byte[] { 0xB3, 0x6C, 1 });
@@ -454,6 +506,7 @@ internal static partial class Program
         Equal("  01234567 01234567\n  10110011 01101100\n  00000001\n", Export(document, settings));
     }
 
+    /// <summary>Hidden offsets, ASCII, ruler, and labels must contribute no extra text to a data-only export.</summary>
     private static void DataOnlyExport()
     {
         var document = new DocumentModel(new byte[] { 0xFF, 0xF0, 0xA1, 0x48, 0x69 });
@@ -464,6 +517,7 @@ internal static partial class Program
         Equal("  FF F0 A1\n  48 69\n", Export(document, settings));
     }
 
+    /// <summary>Checks row-crossing labels and preserves a real ASCII space at the end of the source data.</summary>
     private static void PartialRowAnnotations()
     {
         var document = new DocumentModel(new byte[] { 0x41, 0x7F, 0x20 });
@@ -482,6 +536,7 @@ internal static partial class Program
         Equal("[Crossing] [Last bit]", row.Annotations);
     }
 
+    /// <summary>An empty document emits no data rows; it may still emit the explicitly enabled ruler.</summary>
     private static void EmptyExport()
     {
         var settings = Settings(3);
@@ -490,6 +545,7 @@ internal static partial class Program
         Equal("              00 01 02\n", Export(new DocumentModel(), settings));
     }
 
+    /// <summary>Invalid grouping or NaN dimensions must be rejected before output is partially written.</summary>
     private static void InvalidFormatting()
     {
         var settings = Settings(0);
@@ -501,6 +557,7 @@ internal static partial class Program
         Throws<InvalidDataException>(() => DisplayFormatter.FormatRow(Sample(), 0, settings));
     }
 
+    /// <summary>Changing pixel widths must move exported tokens to the corresponding whole-character positions.</summary>
     private static void ResizedColumns()
     {
         var document = new DocumentModel(new byte[] { 0x41, 0x42, 0x43 });
@@ -514,6 +571,8 @@ internal static partial class Program
         Equal(20, widths.Data);
         Equal(10, widths.Ascii);
         var lines = Export(document, settings).Split('\n');
+        // IndexOf returns a zero-based character position. The ruler and data
+        // share a start, and ASCII retains its start even on an incomplete row.
         Equal(18, lines[0].IndexOf("00 01", StringComparison.Ordinal));
         Equal(18, lines[1].IndexOf("41 42", StringComparison.Ordinal));
         Equal(38, lines[1].IndexOf("AB", StringComparison.Ordinal));
@@ -526,6 +585,7 @@ internal static partial class Program
         Equal(58, lines[2].IndexOf('C'));
     }
 
+    /// <summary>Requested widths smaller than their contents must expand enough to preserve every byte and ASCII character.</summary>
     private static void NarrowColumns()
     {
         var document = new DocumentModel(Enumerable.Repeat((byte)0x41, 16).ToArray());
@@ -541,6 +601,7 @@ internal static partial class Program
         Equal(new string('A', 16), line[65..]);
     }
 
+    /// <summary>Checks shared ellipsis truncation, blank annotation lines, and a cut near a two-char Unicode emoji.</summary>
     private static void AnnotationRows()
     {
         var document = new DocumentModel(new byte[] { 0x41, 0x42, 0x43 });
@@ -554,6 +615,7 @@ internal static partial class Program
         Equal("[12345…", DisplayFormatter.FormatRow(unicode, 0, settings).Annotations);
     }
 
+    /// <summary>Creates compact, deterministic column settings so exact expected strings stay readable in tests.</summary>
     private static DisplaySettings Settings(int bytesPerRow) => new()
     {
         BytesPerRow = bytesPerRow,
@@ -564,15 +626,20 @@ internal static partial class Program
         AsciiWidth = 56
     };
 
+    /// <summary>Captures export text in memory, using the same newline on every operating system.</summary>
     private static string Export(DocumentModel document, DisplaySettings settings)
     {
+        // using disposes the temporary writer when this helper returns. No file
+        // is needed for formatting checks; persistence tests cover disk I/O separately.
         using var writer = new StringWriter { NewLine = "\n" };
         DisplayFormatter.Export(writer, document, settings);
         return writer.ToString();
     }
 
+    /// <summary>Returns a fresh two-byte fixture whose mixed bits expose shifts, order, and masking mistakes.</summary>
     private static DocumentModel Sample() => new(new byte[] { 0xB3, 0x6C });
 
+    /// <summary>Creates a valid field fixture; params allows tests to write addresses directly as arguments.</summary>
     private static NamedField Field(string name, params long[] orderedBits) => new()
     {
         Name = name,
@@ -581,8 +648,11 @@ internal static partial class Program
         Notes = string.Empty
     };
 
+    /// <summary>Places a test-created file inside this run's disposable fixture directory.</summary>
     private static string Artifact(string name) => Path.Combine(ArtifactDirectory, name);
 
+    /// <summary>Runs one test delegate, records pass/fail, and reports failures without stopping the remaining checks.</summary>
+    /// <remarks>An Action is a callable operation with no parameters and no return value.</remarks>
     private static void Test(string name, Action action)
     {
         try
@@ -598,18 +668,24 @@ internal static partial class Program
         }
     }
 
+    /// <summary>Asserts equality using the normal comparison rules for the generic value type T.</summary>
+    // Generic helpers work for strings, numbers, enum values, and other types
+    // without writing a separate assertion method for each one.
     private static void Equal<T>(T expected, T actual)
     {
         if (!EqualityComparer<T>.Default.Equals(expected, actual))
             throw new InvalidOperationException($"Expected <{expected}>, got <{actual}>.");
     }
 
+    /// <summary>Compares collection contents in order, instead of comparing array/list object identities.</summary>
     private static void Sequence<T>(IEnumerable<T> expected, IEnumerable<T> actual)
     {
         if (!expected.SequenceEqual(actual))
             throw new InvalidOperationException($"Expected [{string.Join(", ", expected)}], got [{string.Join(", ", actual)}].");
     }
 
+    /// <summary>Passes only if the operation throws the requested exception type or a subtype.</summary>
+    /// <remarks>The lambda passed by a test delays the operation until it is inside this try/catch.</remarks>
     private static void Throws<T>(Action action) where T : Exception
     {
         try { action(); }

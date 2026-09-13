@@ -1,5 +1,8 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
+  <!-- Build a Windows desktop executable. UseWPF enables XAML compilation;
+       net10.0-windows selects the .NET and Windows APIs. Nullable checks values
+       that might be absent. ImplicitUsings supplies common C# using directives. -->
   <PropertyGroup>
     <OutputType>WinExe</OutputType>
     <TargetFramework>net10.0-windows</TargetFramework>
@@ -11,6 +14,9 @@
     <Description>A field-aware binary explorer and editor</Description>
   </PropertyGroup>
 
+  <!-- The SDK normally discovers C# in subfolders. Core and the test harnesses
+       are separate projects, so do not also compile their source into the app.
+       Reference Core's compiled output instead. -->
   <ItemGroup>
     <Compile Remove="Core\**\*.cs;Tests\**\*.cs;Tests.Wpf\**\*.cs" />
     <ProjectReference Include="Core\BitExplorer.Core.csproj" />
