@@ -1,0 +1,36 @@
+<UserControl x:Class="WpfApp1.Views.DisplayOptionsView"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+    <StackPanel Margin="0,12,0,0">
+        <TextBlock Text="OFFSET BASE" Style="{StaticResource SmallLabel}" Margin="0,0,0,5"/>
+        <ComboBox SelectedIndex="{Binding OffsetBaseIndex}">
+            <ComboBoxItem Content="Hexadecimal"/><ComboBoxItem Content="Decimal"/>
+        </ComboBox>
+        <TextBlock Text="BIT NUMBERING" Style="{StaticResource SmallLabel}" Margin="0,13,0,5"/>
+        <ComboBox SelectedIndex="{Binding BitNumberingIndex}">
+            <ComboBoxItem Content="LSB is bit 0 · 7 → 0"/><ComboBoxItem Content="MSB is bit 0 · 0 → 7"/>
+        </ComboBox>
+        <CheckBox Content="Offset column" IsChecked="{Binding ShowOffsets}" Margin="0,13,0,0"/>
+        <CheckBox Content="ASCII column" IsChecked="{Binding ShowAscii}" Margin="0,9,0,0"/>
+        <CheckBox Content="Position ruler" IsChecked="{Binding ShowRuler}" Margin="0,9,0,0"/>
+        <CheckBox Content="Field annotations in grid / export" IsChecked="{Binding ShowAnnotations}" Margin="0,9,0,0"/>
+        <TextBlock Text="COLUMN WIDTHS · PIXELS" Style="{StaticResource SmallLabel}" Margin="0,16,0,6"/>
+        <Grid>
+            <Grid.ColumnDefinitions><ColumnDefinition/><ColumnDefinition/><ColumnDefinition/></Grid.ColumnDefinitions>
+            <StackPanel>
+                <TextBlock Text="Offset" Foreground="{StaticResource MutedBrush}" FontSize="11"/>
+                <TextBox Text="{Binding OffsetWidthInput, UpdateSourceTrigger=PropertyChanged}" Margin="0,5,6,0" AutomationProperties.Name="Offset column width"/>
+            </StackPanel>
+            <StackPanel Grid.Column="1">
+                <TextBlock Text="Data" Foreground="{StaticResource MutedBrush}" FontSize="11"/>
+                <TextBox Text="{Binding DataWidthInput, UpdateSourceTrigger=PropertyChanged}" Margin="0,5,6,0" AutomationProperties.Name="Data column width"/>
+            </StackPanel>
+            <StackPanel Grid.Column="2">
+                <TextBlock Text="ASCII" Foreground="{StaticResource MutedBrush}" FontSize="11"/>
+                <TextBox Text="{Binding AsciiWidthInput, UpdateSourceTrigger=PropertyChanged}" Margin="0,5,0,0" AutomationProperties.Name="ASCII column width"/>
+            </StackPanel>
+        </Grid>
+        <Button Content="Apply widths" Command="{Binding ApplyWidthsCommand}" Margin="0,9,0,0"/>
+        <TextBlock Text="You can also drag the dividers in the grid header." Foreground="{StaticResource MutedBrush}" FontSize="11" TextWrapping="Wrap" Margin="0,8,0,0"/>
+    </StackPanel>
+</UserControl>

@@ -1,0 +1,19 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <OutputType>WinExe</OutputType>
+    <TargetFramework>net10.0-windows</TargetFramework>
+    <Nullable>enable</Nullable>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <UseWPF>true</UseWPF>
+    <AssemblyName>BitExplorer</AssemblyName>
+    <Product>Bit Explorer</Product>
+    <Description>A field-aware binary explorer and editor</Description>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <Compile Remove="Core\**\*.cs;Tests\**\*.cs;Tests.Wpf\**\*.cs" />
+    <ProjectReference Include="Core\BitExplorer.Core.csproj" />
+  </ItemGroup>
+
+</Project>
