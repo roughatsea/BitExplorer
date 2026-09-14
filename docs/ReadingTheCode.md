@@ -1,6 +1,108 @@
 # Reading Bit Explorer's code
 
-This guide is a starting point for someone who has written little code. The comments in the source files explain individual methods and calculations; this guide connects those pieces into a working application. You do not need to read every file before understanding the main flow.
+This guide assumes you have never programmed. It explains how to read the instructions, then connects them to actions you can try in Bit Explorer. The source comments describe individual instructions and the blocks they belong to. You do not need to read every file before understanding one feature.
+
+## Before you start: what you are looking at
+
+The text in a `.cs` file is **source code**: instructions written for people and development tools to read. A tool called a **compiler** checks those instructions and turns them into a form the computer can run. **Building** the project runs that translation and prepares the application. **Running** starts the resulting application. Reading or editing a file does not by itself run its instructions.
+
+This project uses two main kinds of source files. C# (`.cs`) describes behavior, such as changing a byte. XAML (`.xaml`, pronounced “zammel”) describes the window's controls and their connections, such as which action a button invokes. Both contribute to the same application.
+
+A **comment** is an explanation for the reader, ignored when the program runs. `//` starts a C# comment that continues to the end of its line. `///` is also a comment, formatted so an editor can display it as help. Its `<summary>` and `<param>` tags label the explanation and its inputs. In XAML, a comment starts with `<!--` and ends with `-->`.
+
+The comments in this teaching edition follow a few reading rules:
+
+- Read the comment immediately above an instruction before reading the instruction itself. A comment above a method also explains the purpose of its whole body.
+- An instruction can occupy several lines. Its explanation covers those continuation lines, including arguments separated by commas.
+- Braces group instructions or starting values. A closing brace finishes the group introduced earlier. It does not need a separate explanation that only says “closing brace.”
+- A multiline passage inside quotation marks is application text or test data. Its explanation belongs outside the quotation marks; putting a comment inside would change the actual text.
+- Repeated simple operations get short reminders. More involved operations also have explanations of their purpose and concrete examples. You can skip reminders once they become familiar.
+
+### Names, values, and places to remember things
+
+Suppose the code says:
+
+```csharp
+// Make a place called offset for a whole number, initially 2.
+int offset = 2;
+// Make a place called firstBit and store the result of 2 multiplied by 8.
+long firstBit = offset * 8;
+// Replace the number stored in offset with 3.
+offset = 3;
+```
+
+After these instructions, `offset` is 3 and `firstBit` is still 16. Assigning a calculated result does not create a live mathematical equation. The computer calculates the right side when that instruction runs, then stores the result on the left. This is why `=` means **assignment**, while `==` asks whether two values are equal.
+
+`int` and `long` are **types**: rules about the kinds of values a named place can hold. Both hold whole numbers; `long` has room for much larger ones. A **variable** is a named place whose value can change. A **local variable** belongs to the operation currently running. A **field** in C# is stored with an object and can survive between calls. This use of “field” is different from a named group of bits in the explorer.
+
+An **object** brings related data and operations together. A **class** describes what such objects contain. `new DocumentModel(bytes)` creates a document object. `document.Data` uses the dot to reach the data belonging to that particular object. `document.SetByte(2, 255)` asks that object to change byte offset 2 to the value 255.
+
+There is an important difference between remembering an object and copying it. `var other = document;` gives the same object another name. Editing through either name reaches the same document. A method such as `Clone()` or `ToArray()` can make a separate copy; comments point out where the application needs that independence. `readonly` on a field prevents replacing its stored reference after initialization, but does not automatically prevent editing the object it refers to.
+
+### Instructions, decisions, and repetition
+
+A **method** is a named group of instructions. Writing its definition is like writing a recipe; **calling** it is asking for that recipe to be followed. A definition lists input names called **parameters**. A call supplies actual **arguments** for those inputs. `return` finishes the current call and may send a result back to whoever called it.
+
+Here is a complete teaching example, separate from the application:
+
+```csharp
+// Define an operation named IsByteValue. It accepts a whole number named value
+// and promises to return bool: either true (yes) or false (no).
+bool IsByteValue(int value)
+{
+    // A byte cannot hold a negative number or a number above 255.
+    // || means OR: either problem is enough to enter this branch.
+    if (value < 0 || value > 255)
+    {
+        // Finish this call now, answering no. Later instructions are skipped.
+        return false;
+    }
+    // Reaching here means neither invalid case occurred. Answer yes.
+    return true;
+}
+```
+
+`IsByteValue(179)` returns `true`; `IsByteValue(256)` returns `false`. The braces after `if` contain the instructions that run only when its condition is true. C# also allows a single instruction without braces: `if (value < 0) return false;` has the same decision-and-early-exit pattern.
+
+`else` introduces the alternative when an `if` condition is false. `&&` means AND: both conditions must hold. `!` before a true-or-false expression reverses its answer. `||` and `&&` can stop checking as soon as the answer is known; for example, `item != null && item.Name == "Version"` does not try to read a name from a missing object.
+
+A **loop** repeats instructions. `for (int bit = 0; bit < 8; bit++)` starts at zero, runs a pass while the number is below eight, and adds one after each pass. Its passes use 0, 1, 2, 3, 4, 5, 6, and 7. `foreach (var bit in bits)` instead visits the items already in `bits`. `break` leaves the loop; `continue` skips the remainder of the current pass. Neither means “close the application.”
+
+A **switch** chooses from several alternatives. Each case names a matching value and the work or result to use. `_` in a switch expression is the catch-all case. A **lambda**, such as `() => SaveProject()`, packages an operation for another part of the program to invoke. Creating a button's command does not immediately save a file; the command retains that operation for later activation.
+
+### Reading a small piece of the real application
+
+In [ObservableObject.cs](../Infrastructure/ObservableObject.cs), the central part of `SetProperty` is:
+
+```csharp
+// If the old and proposed values are equal, answer "nothing changed" now.
+if (EqualityComparer<T>.Default.Equals(storage, value)) return false;
+// Store the proposed value in the original caller's storage.
+storage = value;
+// Tell listeners which displayed property should be read again.
+OnPropertyChanged(propertyName);
+// Answer "a change happened" to the caller.
+return true;
+```
+
+`T` is a placeholder for a type, allowing this same helper to compare text, numbers, and other values. `ref` in the method's parameter list means `storage` refers to the caller's actual storage location, so the assignment updates that location. `propertyName` is text identifying the property that changed. The notification is necessary because storing a new value in memory does not by itself tell a text box to redraw.
+
+### Reading a control description
+
+Here is a shortened version of a control in [DisplayOptionsView.xaml](../Views/DisplayOptionsView.xaml):
+
+```xml
+<!-- Make a checkbox labelled ASCII column. Connect its checked state to
+     ShowAscii on the panel's view model. The control's normal two-way binding
+     also sends a user's check/uncheck back to that property. -->
+<CheckBox Content="ASCII column" IsChecked="{Binding ShowAscii}" />
+```
+
+`CheckBox` names the kind of control. `Content` and `IsChecked` are **attributes**, written as `name="value"`. `Content` supplies a label. The braces in `{Binding ShowAscii}` ask WPF to connect to a property rather than use those words as literal text. The connection's starting object is the **DataContext**, supplied by the containing view. `/>` finishes an element with no children. A container instead has an opening tag, child elements, and a closing tag such as `</Grid>`.
+
+`{StaticResource MutedBrush}` looks up a reusable named object from the application's resources. `{TemplateBinding Background}` takes a property from the control whose appearance a template describes. A template is a recipe for drawing a control; it is different from the data displayed inside it.
+
+XAML uses screen measurements called **device-independent units**. A width of 100 does not always mean 100 physical monitor pixels, because Windows can scale the interface. A margin is empty space outside a control; padding is empty space inside its border. Row and column numbers start at zero. `Auto` fits the content, while `*` receives a share of the remaining space.
 
 ## 1. The data we are exploring
 
@@ -57,6 +159,15 @@ You will meet these forms throughout the project. The inline comments explain th
 | Constructor | A method-like initialization step with the same name as its class. Arguments can also be declared beside the class name. |
 | `public`, `private`, `internal` | Accessible from outside, only from the containing type, or from the same compiled assembly, respectively. |
 | `readonly` | The field's reference/value can be assigned only in allowed initialization locations. The referenced object may still contain editable data. |
+| `static` | Belongs to the type itself, rather than to one particular object. `Math.Max(...)` is called this way. |
+| `const` | A named value fixed when the code is compiled. |
+| `sealed` | Other classes cannot extend this class by inheriting from it. |
+| `abstract` | An incomplete/shared definition that cannot itself be created with `new`. |
+| `partial` | Several source files contribute to the same type; WPF uses this for your code and its generated code. |
+| `override` / `base` | Replace an inherited operation's behavior / reach the inherited implementation. |
+| `protected` | Available inside this class and classes derived from it. |
+| `get` / `set` / `init` | Read a property / write it / supply it during initialization. `private set` restricts who may write it. |
+| `record` | A type that groups related values and provides comparisons based on those values. Its members are not automatically deeply immutable. |
 | `var` | The compiler infers the variable's type from its starting value. The variable still has a definite type. |
 | `byte`, `int`, `long`, `double`, `bool`, `string` | An eight-bit unsigned number, 32-bit integer, 64-bit integer, floating-point number, true/false value, and text. |
 | `BigInteger` | A whole number that can grow beyond 64 bits, used for wide custom fields. |
@@ -73,6 +184,15 @@ You will meet these forms throughout the project. The inline comments explain th
 | `$"Offset {offset:X8}"` | Insert a value into text; here format it in hex with at least eight digits. |
 | `nameof(Property)` | Produce the name as text while letting the compiler check the identifier. |
 | `using var item = ...` | Dispose the item when the current scope ends, useful for files, listeners, and subscriptions. |
+| `items[0]`, `items[^1]` | Read the first item or the last item. `^1` counts one place back from the end. |
+| `text[2..]`, `text[..3]` | Take text from position two to the end, or from the start up to (but excluding) position three. |
+| `(byte)value` | Convert a value to the byte type. This syntax is called a cast; validation must establish that a value fits when required. |
+| `checked(...)` | Report overflow rather than silently wrapping a calculation or conversion that is too large for its numeric type. |
+| `out var result` | Let the called operation supply an additional result through this named place. |
+| `[]`, `new[] { ... }` | An empty collection in context, or a new array initialized from the listed values. Brackets after an existing name instead select an item. |
+| `(Offset: 2, Value: 255)` | A tuple: a small package of values, optionally given names. |
+| `[STAThread]`, `[CallerMemberName]` | Attributes: instructions to development/runtime tools, rather than ordinary method calls. The former selects the thread model WPF needs; the latter supplies a caller's member name. |
+| `null`, `default` | No object/value present; or the default for a type (for example 0 for integers, false for bool, and null for object references). |
 
 An **interface** describes what operations an object must offer. `IUserInteractionService` describes prompts and messages. The real implementation shows Windows dialogs; the test implementation returns prepared answers. A view model can use either because both satisfy the same interface.
 

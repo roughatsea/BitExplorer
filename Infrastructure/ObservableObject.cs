@@ -1,6 +1,24 @@
+// READING THIS FILE
+// A program is a set of instructions. This file defines some of those instructions;
+// defining a method does not run it. A call such as Refresh() asks it to run.
+// Comments explain the next instruction or the whole block introduced below them.
+// Within a running block, instructions normally run from top to bottom. Braces { }
+// group a body; a closing brace ends that group. Blank lines only separate ideas.
+// A semicolon ends an instruction. A long instruction can continue on several lines;
+// its commas, closing parentheses and braces belong to the explanation at its start.
+// Names identify values or operations: x = y stores y in x; x == y compares them.
+// A dot selects something belonging to an object, and (...) supplies inputs to a call.
+// See docs/ReadingTheCode.md for types, symbols, examples, and the application map.
+
+// Make names from System.ComponentModel available here without writing their full prefix each time. This
+// does not run that library's code.
 using System.ComponentModel;
+// Make names from System.Runtime.CompilerServices available here without writing their full prefix each
+// time. This does not run that library's code.
 using System.Runtime.CompilerServices;
 
+// Place this file's definitions in the WpfApp1.Infrastructure naming group, which prevents clashes with
+// names in other groups.
 namespace WpfApp1.Infrastructure;
 
 /// <summary>
@@ -27,8 +45,14 @@ public abstract class ObservableObject : INotifyPropertyChanged
         // EqualityComparer chooses equality appropriate to T. Avoid needless
         // refreshes when a binding sends the value we already have back to us.
         if (EqualityComparer<T>.Default.Equals(storage, value)) return false;
+        // Replace the caller's stored value. The ref keyword in the parameter list
+        // makes storage refer to the caller's actual location, not a separate copy.
         storage = value;
+        // Announce which named property changed. For example, "ByteInput" tells
+        // a text-box binding to read ByteInput again and show the new text.
         OnPropertyChanged(propertyName);
+        // Answer yes: a replacement happened. A caller can use this answer to
+        // perform related work without doing it for an unchanged value.
         return true;
     }
 
@@ -45,6 +69,8 @@ public abstract class ObservableObject : INotifyPropertyChanged
     /// </summary>
     protected void RaiseProperties(params string[] propertyNames)
     {
+        // Take each item from propertyNames in turn, call the current item name, and tell the screen that
+        // name should be reread.
         foreach (string name in propertyNames) OnPropertyChanged(name);
     }
 }

@@ -1,73 +1,730 @@
+<!-- READING THIS FILE
+     Markup describes a tree. <Name ...> begins an element; </Name> ends it.
+     <Name ... /> is a complete element with no children. Nested elements belong
+     to their surrounding element. Attributes such as Width="100" set properties.
+     Comments cover the next element and its attributes; closing tags finish that
+     same explanation. Indentation shows nesting and does not create behavior.
+     See docs/ReadingTheCode.md for a worked example and the project map. -->
+<!-- Describe the application's startup and shared resources. x:Class links this markup to the C# type
+     WpfApp1.App. The default xmlns identifies a family of markup names; its URI is a name, not a file
+     downloaded at runtime. The xmlns:x prefix identifies a family of markup names; its URI is a name, not
+     a file downloaded at runtime. Open MainWindow.xaml when the application starts.
+-->
 <Application x:Class="WpfApp1.App" xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation" xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml" StartupUri="MainWindow.xaml">
-    <!-- StartupUri above opens MainWindow after WPF creates the Application.
+  <!-- StartupUri above opens MainWindow after WPF creates the Application.
          Resources are reusable named objects or styles. A brush supplies paint;
          a style supplies property defaults; a template describes a control's visuals.
          Colors use #RRGGBB hexadecimal red/green/blue values, not file data.
          x:Key names an explicitly requested resource. A style with only TargetType
          applies automatically to controls of that type throughout the application. -->
-    <Application.Resources>
-        <!-- Converts a true/false view-model property into WPF's Visibility enum.
+  <!-- Set the Resources property of Application using the nested elements. -->
+  <Application.Resources>
+    <!-- Converts a true/false view-model property into WPF's Visibility enum.
              False becomes Collapsed, so the hidden element takes no layout space. -->
-        <BooleanToVisibilityConverter x:Key="BooleanVisibility"/>
-        <!-- Shared palette: change these brushes to update the application theme.
+    <!-- Translate true into Visible and false into Collapsed, which uses no layout space. x:Key names this
+         reusable resource BooleanVisibility.
+    -->
+    <BooleanToVisibilityConverter x:Key="BooleanVisibility" />
+    <!-- Shared palette: change these brushes to update the application theme.
              StaticResource references below resolve to these objects. -->
-        <SolidColorBrush x:Key="CanvasBrush" Color="#10151E"/><SolidColorBrush x:Key="TextBrush" Color="#D5DFED"/>
-        <SolidColorBrush x:Key="MutedBrush" Color="#8F9DB1"/><SolidColorBrush x:Key="LineBrush" Color="#293546"/>
-        <SolidColorBrush x:Key="AccentBrush" Color="#6CE1CE"/>
-        <!-- Display-mode text formatting favors readable screen-aligned glyphs.
+    <!-- Create paint that fills an area with one color. x:Key names this reusable resource CanvasBrush.
+         Use #10151E for Color; hexadecimal color digits describe paint, not the open file's bytes.
+    -->
+    <SolidColorBrush x:Key="CanvasBrush" Color="#10151E" />
+    <!-- Create paint that fills an area with one color. x:Key names this reusable resource TextBrush. Use
+         #D5DFED for Color; hexadecimal color digits describe paint, not the open file's bytes.
+    -->
+    <SolidColorBrush x:Key="TextBrush" Color="#D5DFED" />
+    <!-- Create paint that fills an area with one color. x:Key names this reusable resource MutedBrush. Use
+         #8F9DB1 for Color; hexadecimal color digits describe paint, not the open file's bytes.
+    -->
+    <SolidColorBrush x:Key="MutedBrush" Color="#8F9DB1" />
+    <!-- Create paint that fills an area with one color. x:Key names this reusable resource LineBrush. Use
+         #293546 for Color; hexadecimal color digits describe paint, not the open file's bytes.
+    -->
+    <SolidColorBrush x:Key="LineBrush" Color="#293546" />
+    <!-- Create paint that fills an area with one color. x:Key names this reusable resource AccentBrush.
+         Use #6CE1CE for Color; hexadecimal color digits describe paint, not the open file's bytes.
+    -->
+    <SolidColorBrush x:Key="AccentBrush" Color="#6CE1CE" />
+    <!-- Display-mode text formatting favors readable screen-aligned glyphs.
              SmallLabel is a separate, explicitly named style for section captions. -->
-        <Style TargetType="TextBlock"><Setter Property="TextOptions.TextFormattingMode" Value="Display"/></Style>
-        <Style x:Key="SmallLabel" TargetType="TextBlock"><Setter Property="Foreground" Value="{StaticResource MutedBrush}"/><Setter Property="FontSize" Value="10"/><Setter Property="FontWeight" Value="SemiBold"/></Style>
-        <!-- A ControlTemplate replaces a button's default Windows appearance.
+    <!-- Group property settings that can be reused by controls. Apply this description to TextBlock
+         controls.
+    -->
+    <Style TargetType="TextBlock">
+      <!-- Supply a property setting for the surrounding style or trigger. The property being configured or
+           tested is TextOptions.TextFormattingMode. Use Display as the setting or comparison value.
+      -->
+      <Setter Property="TextOptions.TextFormattingMode" Value="Display" />
+    </Style>
+    <!-- Group property settings that can be reused by controls. x:Key names this reusable resource
+         SmallLabel. Apply this description to TextBlock controls.
+    -->
+    <Style x:Key="SmallLabel" TargetType="TextBlock">
+      <!-- Supply a property setting for the surrounding style or trigger. The property being configured or
+           tested is Foreground. Get Value from the shared resource {StaticResource MutedBrush}.
+      -->
+      <Setter Property="Foreground" Value="{StaticResource MutedBrush}" />
+      <!-- Supply a property setting for the surrounding style or trigger. The property being configured or
+           tested is FontSize. Use 10 as the setting or comparison value.
+      -->
+      <Setter Property="FontSize" Value="10" />
+      <!-- Supply a property setting for the surrounding style or trigger. The property being configured or
+           tested is FontWeight. Use SemiBold as the setting or comparison value.
+      -->
+      <Setter Property="FontWeight" Value="SemiBold" />
+    </Style>
+    <!-- A ControlTemplate replaces a button's default Windows appearance.
              TemplateBinding copies properties from the button onto its drawn Border.
              ContentPresenter displays the button's label. Triggers adjust that
              border for hover, press, disabled, and keyboard-focus states. These
              are visual changes; clicking still uses WPF's normal Button behavior. -->
-        <Style TargetType="Button">
-            <Setter Property="Background" Value="#243142"/><Setter Property="Foreground" Value="{StaticResource TextBrush}"/><Setter Property="BorderBrush" Value="#35465A"/><Setter Property="BorderThickness" Value="1"/><Setter Property="Padding" Value="12,7"/><Setter Property="Cursor" Value="Hand"/>
-            <Setter Property="Template"><Setter.Value><ControlTemplate TargetType="Button"><Border x:Name="ButtonBorder" Background="{TemplateBinding Background}" BorderBrush="{TemplateBinding BorderBrush}" BorderThickness="{TemplateBinding BorderThickness}" CornerRadius="5" Padding="{TemplateBinding Padding}"><ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/></Border><ControlTemplate.Triggers><Trigger Property="IsMouseOver" Value="True"><Setter TargetName="ButtonBorder" Property="BorderBrush" Value="#68BBAF"/></Trigger><Trigger Property="IsPressed" Value="True"><Setter TargetName="ButtonBorder" Property="Opacity" Value="0.7"/></Trigger><Trigger Property="IsEnabled" Value="False"><Setter TargetName="ButtonBorder" Property="Opacity" Value="0.38"/></Trigger><Trigger Property="IsKeyboardFocused" Value="True"><Setter TargetName="ButtonBorder" Property="BorderBrush" Value="#8BE8DA"/></Trigger></ControlTemplate.Triggers></ControlTemplate></Setter.Value></Setter>
-        </Style>
-        <!-- BasedOn inherits the ordinary button style, changing only its colors.
+    <!-- Group property settings that can be reused by controls. Apply this description to Button controls. -->
+    <Style TargetType="Button">
+      <!-- Supply a property setting for the surrounding style or trigger. The property being configured or
+           tested is Background. Use #243142 as the setting or comparison value.
+      -->
+      <Setter Property="Background" Value="#243142" />
+      <!-- Supply a property setting for the surrounding style or trigger. The property being configured or
+           tested is Foreground. Get Value from the shared resource {StaticResource TextBrush}.
+      -->
+      <Setter Property="Foreground" Value="{StaticResource TextBrush}" />
+      <!-- Supply a property setting for the surrounding style or trigger. The property being configured or
+           tested is BorderBrush. Use #35465A as the setting or comparison value.
+      -->
+      <Setter Property="BorderBrush" Value="#35465A" />
+      <!-- Supply a property setting for the surrounding style or trigger. The property being configured or
+           tested is BorderThickness. Use 1 as the setting or comparison value.
+      -->
+      <Setter Property="BorderThickness" Value="1" />
+      <!-- Supply a property setting for the surrounding style or trigger. The property being configured or
+           tested is Padding. Use 12,7 as the setting or comparison value.
+      -->
+      <Setter Property="Padding" Value="12,7" />
+      <!-- Supply a property setting for the surrounding style or trigger. The property being configured or
+           tested is Cursor. Use Hand as the setting or comparison value.
+      -->
+      <Setter Property="Cursor" Value="Hand" />
+      <!-- Supply a property setting for the surrounding style or trigger. The property being configured or
+           tested is Template.
+      -->
+      <Setter Property="Template">
+        <!-- Set the Value property of Setter using the nested elements. -->
+        <Setter.Value>
+          <!-- Describe the visual pieces used to draw a control. Apply this description to Button
+               controls.
+          -->
+          <ControlTemplate TargetType="Button">
+            <!-- Draw a background or border around a child control, with optional rounded corners and
+                 inner spacing. x:Name makes this element identifiable as ButtonBorder. Take Background
+                 from {TemplateBinding Background} on the control this template is drawing. Take
+                 BorderBrush from {TemplateBinding BorderBrush} on the control this template is drawing.
+                 Take BorderThickness from {TemplateBinding BorderThickness} on the control this template
+                 is drawing. CornerRadius 5 rounds the corners. Take Padding from {TemplateBinding Padding}
+                 on the control this template is drawing.
+            -->
+            <Border x:Name="ButtonBorder" Background="{TemplateBinding Background}" BorderBrush="{TemplateBinding BorderBrush}" BorderThickness="{TemplateBinding BorderThickness}" CornerRadius="5" Padding="{TemplateBinding Padding}">
+              <!-- Display the content supplied by the surrounding control or template.
+                   HorizontalAlignment=Center positions the element or its contents along that axis.
+                   VerticalAlignment=Center positions the element or its contents along that axis.
+              -->
+              <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center" />
+            </Border>
+            <!-- Set the Triggers property of ControlTemplate using the nested elements. -->
+            <ControlTemplate.Triggers>
+              <!-- Apply the nested settings when the specified control Property equals Value. The property
+                   being configured or tested is IsMouseOver. Use True as the setting or comparison value.
+              -->
+              <Trigger Property="IsMouseOver" Value="True">
+                <!-- Supply a property setting for the surrounding style or trigger. Apply this setter to
+                     the template element named ButtonBorder. The property being configured or tested is
+                     BorderBrush. Use #68BBAF as the setting or comparison value.
+                -->
+                <Setter TargetName="ButtonBorder" Property="BorderBrush" Value="#68BBAF" />
+              </Trigger>
+              <!-- Apply the nested settings when the specified control Property equals Value. The property
+                   being configured or tested is IsPressed. Use True as the setting or comparison value.
+              -->
+              <Trigger Property="IsPressed" Value="True">
+                <!-- Supply a property setting for the surrounding style or trigger. Apply this setter to
+                     the template element named ButtonBorder. The property being configured or tested is
+                     Opacity. Use 0.7 as the setting or comparison value.
+                -->
+                <Setter TargetName="ButtonBorder" Property="Opacity" Value="0.7" />
+              </Trigger>
+              <!-- Apply the nested settings when the specified control Property equals Value. The property
+                   being configured or tested is IsEnabled. Use False as the setting or comparison value.
+              -->
+              <Trigger Property="IsEnabled" Value="False">
+                <!-- Supply a property setting for the surrounding style or trigger. Apply this setter to
+                     the template element named ButtonBorder. The property being configured or tested is
+                     Opacity. Use 0.38 as the setting or comparison value.
+                -->
+                <Setter TargetName="ButtonBorder" Property="Opacity" Value="0.38" />
+              </Trigger>
+              <!-- Apply the nested settings when the specified control Property equals Value. The property
+                   being configured or tested is IsKeyboardFocused. Use True as the setting or comparison
+                   value.
+              -->
+              <Trigger Property="IsKeyboardFocused" Value="True">
+                <!-- Supply a property setting for the surrounding style or trigger. Apply this setter to
+                     the template element named ButtonBorder. The property being configured or tested is
+                     BorderBrush. Use #8BE8DA as the setting or comparison value.
+                -->
+                <Setter TargetName="ButtonBorder" Property="BorderBrush" Value="#8BE8DA" />
+              </Trigger>
+            </ControlTemplate.Triggers>
+          </ControlTemplate>
+        </Setter.Value>
+      </Setter>
+    </Style>
+    <!-- BasedOn inherits the ordinary button style, changing only its colors.
              The nested x:Type finds the implicit style keyed by the Button type. -->
-        <Style x:Key="AccentButton" TargetType="Button" BasedOn="{StaticResource {x:Type Button}}"><Setter Property="Background" Value="#204844"/><Setter Property="BorderBrush" Value="#3C9182"/><Setter Property="Foreground" Value="#91F0DF"/></Style>
-        <!-- Text entry keeps WPF's built-in editing behavior. These setters only
+    <!-- Group property settings that can be reused by controls. x:Key names this reusable resource
+         AccentButton. Apply this description to Button controls. Get BasedOn from the shared resource
+         {StaticResource {x:Type Button}}.
+    -->
+    <Style x:Key="AccentButton" TargetType="Button" BasedOn="{StaticResource {x:Type Button}}">
+      <!-- Supply a property setting for the surrounding style or trigger. The property being configured or
+           tested is Background. Use #204844 as the setting or comparison value.
+      -->
+      <Setter Property="Background" Value="#204844" />
+      <!-- Supply a property setting for the surrounding style or trigger. The property being configured or
+           tested is BorderBrush. Use #3C9182 as the setting or comparison value.
+      -->
+      <Setter Property="BorderBrush" Value="#3C9182" />
+      <!-- Supply a property setting for the surrounding style or trigger. The property being configured or
+           tested is Foreground. Use #91F0DF as the setting or comparison value.
+      -->
+      <Setter Property="Foreground" Value="#91F0DF" />
+    </Style>
+    <!-- Text entry keeps WPF's built-in editing behavior. These setters only
              configure the background, caret, selection highlight, and spacing. -->
-        <Style TargetType="TextBox"><Setter Property="Background" Value="#101823"/><Setter Property="Foreground" Value="{StaticResource TextBrush}"/><Setter Property="CaretBrush" Value="#6CE1CE"/><Setter Property="BorderBrush" Value="#3A4A60"/><Setter Property="Padding" Value="8,7"/><Setter Property="VerticalContentAlignment" Value="Center"/><Setter Property="SelectionBrush" Value="#347A72"/></Style>
-        <!-- The normal checkbox template remains; just share text/alignment defaults. -->
-        <Style TargetType="CheckBox"><Setter Property="Foreground" Value="{StaticResource TextBrush}"/><Setter Property="VerticalContentAlignment" Value="Center"/></Style>
-        <!-- The combo box is drawn from three pieces: a toggle for opening it,
+    <!-- Group property settings that can be reused by controls. Apply this description to TextBox
+         controls.
+    -->
+    <Style TargetType="TextBox">
+      <!-- Supply a property setting for the surrounding style or trigger. The property being configured or
+           tested is Background. Use #101823 as the setting or comparison value.
+      -->
+      <Setter Property="Background" Value="#101823" />
+      <!-- Supply a property setting for the surrounding style or trigger. The property being configured or
+           tested is Foreground. Get Value from the shared resource {StaticResource TextBrush}.
+      -->
+      <Setter Property="Foreground" Value="{StaticResource TextBrush}" />
+      <!-- Supply a property setting for the surrounding style or trigger. The property being configured or
+           tested is CaretBrush. Use #6CE1CE as the setting or comparison value.
+      -->
+      <Setter Property="CaretBrush" Value="#6CE1CE" />
+      <!-- Supply a property setting for the surrounding style or trigger. The property being configured or
+           tested is BorderBrush. Use #3A4A60 as the setting or comparison value.
+      -->
+      <Setter Property="BorderBrush" Value="#3A4A60" />
+      <!-- Supply a property setting for the surrounding style or trigger. The property being configured or
+           tested is Padding. Use 8,7 as the setting or comparison value.
+      -->
+      <Setter Property="Padding" Value="8,7" />
+      <!-- Supply a property setting for the surrounding style or trigger. The property being configured or
+           tested is VerticalContentAlignment. Use Center as the setting or comparison value.
+      -->
+      <Setter Property="VerticalContentAlignment" Value="Center" />
+      <!-- Supply a property setting for the surrounding style or trigger. The property being configured or
+           tested is SelectionBrush. Use #347A72 as the setting or comparison value.
+      -->
+      <Setter Property="SelectionBrush" Value="#347A72" />
+    </Style>
+    <!-- The normal checkbox template remains; just share text/alignment defaults. -->
+    <!-- Group property settings that can be reused by controls. Apply this description to CheckBox
+         controls.
+    -->
+    <Style TargetType="CheckBox">
+      <!-- Supply a property setting for the surrounding style or trigger. The property being configured or
+           tested is Foreground. Get Value from the shared resource {StaticResource TextBrush}.
+      -->
+      <Setter Property="Foreground" Value="{StaticResource TextBrush}" />
+      <!-- Supply a property setting for the surrounding style or trigger. The property being configured or
+           tested is VerticalContentAlignment. Use Center as the setting or comparison value.
+      -->
+      <Setter Property="VerticalContentAlignment" Value="Center" />
+    </Style>
+    <!-- The combo box is drawn from three pieces: a toggle for opening it,
              a presenter for the current choice, and a popup for all choices.
              RelativeSource TemplatedParent refers to the ComboBox being styled,
              whereas ordinary data bindings refer to a view model. PART_Popup is
              a WPF-recognized template-part name and must match that contract. -->
-        <Style TargetType="ComboBox">
-            <Setter Property="Foreground" Value="{StaticResource TextBrush}"/><Setter Property="Background" Value="#1F2B3A"/><Setter Property="BorderBrush" Value="#35465A"/><Setter Property="Padding" Value="9,6"/><Setter Property="HorizontalContentAlignment" Value="Left"/><Setter Property="ScrollViewer.CanContentScroll" Value="True"/>
-            <Setter Property="Template"><Setter.Value><ControlTemplate TargetType="ComboBox"><Grid>
-                <ToggleButton Focusable="False" IsChecked="{Binding IsDropDownOpen, Mode=TwoWay, RelativeSource={RelativeSource TemplatedParent}}" ClickMode="Press"><ToggleButton.Template><ControlTemplate TargetType="ToggleButton"><Border Background="#1F2B3A" BorderBrush="#35465A" BorderThickness="1" CornerRadius="5"><TextBlock Text="⌄" Foreground="#9BAAC0" HorizontalAlignment="Right" VerticalAlignment="Center" Margin="0,0,9,0"/></Border></ControlTemplate></ToggleButton.Template></ToggleButton>
-                <ContentPresenter Margin="9,6,27,6" IsHitTestVisible="False" Content="{TemplateBinding SelectionBoxItem}" ContentTemplate="{TemplateBinding SelectionBoxItemTemplate}" VerticalAlignment="Center"/>
-                <Popup x:Name="PART_Popup" Placement="Bottom" IsOpen="{TemplateBinding IsDropDownOpen}" AllowsTransparency="True" Focusable="False" PopupAnimation="Slide"><Border Background="#1E2B3B" BorderBrush="#4C6078" BorderThickness="1" CornerRadius="4" MinWidth="{Binding ActualWidth, RelativeSource={RelativeSource TemplatedParent}}" MaxHeight="320"><ScrollViewer><ItemsPresenter KeyboardNavigation.DirectionalNavigation="Contained"/></ScrollViewer></Border></Popup>
-            </Grid></ControlTemplate></Setter.Value></Setter>
-        </Style>
-        <!-- Each dropdown choice has its own template and selection/hover colors. -->
-        <Style TargetType="ComboBoxItem"><Setter Property="Foreground" Value="{StaticResource TextBrush}"/><Setter Property="Padding" Value="10,8"/><Setter Property="Template"><Setter.Value><ControlTemplate TargetType="ComboBoxItem"><Border x:Name="ChoiceBorder" Background="Transparent" Padding="{TemplateBinding Padding}"><ContentPresenter/></Border><ControlTemplate.Triggers><Trigger Property="IsHighlighted" Value="True"><Setter TargetName="ChoiceBorder" Property="Background" Value="#31515B"/></Trigger><Trigger Property="IsSelected" Value="True"><Setter TargetName="ChoiceBorder" Property="Background" Value="#25433F"/></Trigger></ControlTemplate.Triggers></ControlTemplate></Setter.Value></Setter></Style>
-        <!-- A separator is just a one-unit-high line in the shared border color. -->
-        <Style TargetType="Separator"><Setter Property="Background" Value="{StaticResource LineBrush}"/><Setter Property="Template"><Setter.Value><ControlTemplate TargetType="Separator"><Border Height="1" Background="{TemplateBinding Background}"/></ControlTemplate></Setter.Value></Setter></Style>
-        <!-- Tooltips and popup menus use the same dark palette as the main window. -->
-        <Style TargetType="ToolTip"><Setter Property="Background" Value="#243343"/><Setter Property="Foreground" Value="#E1EBF5"/><Setter Property="BorderBrush" Value="#4F657F"/><Setter Property="Padding" Value="10"/></Style>
-        <Style TargetType="ContextMenu"><Setter Property="Background" Value="#1C2938"/><Setter Property="Foreground" Value="{StaticResource TextBrush}"/><Setter Property="BorderBrush" Value="#43566E"/></Style>
-        <Style TargetType="MenuItem"><Setter Property="Background" Value="#1C2938"/><Setter Property="Foreground" Value="{StaticResource TextBrush}"/></Style>
-        <!-- Clicking the track beside a scrollbar thumb repeats a page command.
+    <!-- Group property settings that can be reused by controls. Apply this description to ComboBox
+         controls.
+    -->
+    <Style TargetType="ComboBox">
+      <!-- Supply a property setting for the surrounding style or trigger. The property being configured or
+           tested is Foreground. Get Value from the shared resource {StaticResource TextBrush}.
+      -->
+      <Setter Property="Foreground" Value="{StaticResource TextBrush}" />
+      <!-- Supply a property setting for the surrounding style or trigger. The property being configured or
+           tested is Background. Use #1F2B3A as the setting or comparison value.
+      -->
+      <Setter Property="Background" Value="#1F2B3A" />
+      <!-- Supply a property setting for the surrounding style or trigger. The property being configured or
+           tested is BorderBrush. Use #35465A as the setting or comparison value.
+      -->
+      <Setter Property="BorderBrush" Value="#35465A" />
+      <!-- Supply a property setting for the surrounding style or trigger. The property being configured or
+           tested is Padding. Use 9,6 as the setting or comparison value.
+      -->
+      <Setter Property="Padding" Value="9,6" />
+      <!-- Supply a property setting for the surrounding style or trigger. The property being configured or
+           tested is HorizontalContentAlignment. Use Left as the setting or comparison value.
+      -->
+      <Setter Property="HorizontalContentAlignment" Value="Left" />
+      <!-- Supply a property setting for the surrounding style or trigger. The property being configured or
+           tested is ScrollViewer.CanContentScroll. Use True as the setting or comparison value.
+      -->
+      <Setter Property="ScrollViewer.CanContentScroll" Value="True" />
+      <!-- Supply a property setting for the surrounding style or trigger. The property being configured or
+           tested is Template.
+      -->
+      <Setter Property="Template">
+        <!-- Set the Value property of Setter using the nested elements. -->
+        <Setter.Value>
+          <!-- Describe the visual pieces used to draw a control. Apply this description to ComboBox
+               controls.
+          -->
+          <ControlTemplate TargetType="ComboBox">
+            <!-- Arrange child controls in rows and columns; unspecified row or column numbers are zero. -->
+            <Grid>
+              <!-- Provide a button with an on/off state. Focusable=False controls whether this element can
+                   receive keyboard focus. Connect IsChecked to {Binding IsDropDownOpen, Mode=TwoWay,
+                   RelativeSource={RelativeSource TemplatedParent}}. Binding reads from DataContext unless
+                   RelativeSource names a different source; TwoWay sends edits back, and PropertyChanged
+                   sends them on each change. Set ClickMode to Press; this configures that aspect of the
+                   element.
+              -->
+              <ToggleButton Focusable="False" IsChecked="{Binding IsDropDownOpen, Mode=TwoWay, RelativeSource={RelativeSource TemplatedParent}}" ClickMode="Press">
+                <!-- Set the Template property of ToggleButton using the nested elements. -->
+                <ToggleButton.Template>
+                  <!-- Describe the visual pieces used to draw a control. Apply this description to
+                       ToggleButton controls.
+                  -->
+                  <ControlTemplate TargetType="ToggleButton">
+                    <!-- Draw a background or border around a child control, with optional rounded corners
+                         and inner spacing. Use #1F2B3A for Background; hexadecimal color digits describe
+                         paint, not the open file's bytes. Use #35465A for BorderBrush; hexadecimal color
+                         digits describe paint, not the open file's bytes. BorderThickness 1 sets edge
+                         widths (four numbers mean left/top/right/bottom). CornerRadius 5 rounds the
+                         corners.
+                    -->
+                    <Border Background="#1F2B3A" BorderBrush="#35465A" BorderThickness="1" CornerRadius="5">
+                      <!-- Display text that the user cannot directly edit. Show the text “⌄”. Use #9BAAC0
+                           for Foreground; hexadecimal color digits describe paint, not the open file's
+                           bytes. HorizontalAlignment=Right positions the element or its contents along
+                           that axis. VerticalAlignment=Center positions the element or its contents along
+                           that axis. Margin 0,0,9,0 adds outside spacing (one number: all sides; two:
+                           horizontal/vertical; four: left/top/right/bottom).
+                      -->
+                      <TextBlock Text="⌄" Foreground="#9BAAC0" HorizontalAlignment="Right" VerticalAlignment="Center" Margin="0,0,9,0" />
+                    </Border>
+                  </ControlTemplate>
+                </ToggleButton.Template>
+              </ToggleButton>
+              <!-- Display the content supplied by the surrounding control or template. Margin 9,6,27,6
+                   adds outside spacing (one number: all sides; two: horizontal/vertical; four:
+                   left/top/right/bottom). IsHitTestVisible=False controls whether pointer hit testing can
+                   target this element. Take Content from {TemplateBinding SelectionBoxItem} on the control
+                   this template is drawing. Take ContentTemplate from {TemplateBinding
+                   SelectionBoxItemTemplate} on the control this template is drawing.
+                   VerticalAlignment=Center positions the element or its contents along that axis.
+              -->
+              <ContentPresenter Margin="9,6,27,6" IsHitTestVisible="False" Content="{TemplateBinding SelectionBoxItem}" ContentTemplate="{TemplateBinding SelectionBoxItemTemplate}" VerticalAlignment="Center" />
+              <!-- Describe a floating surface that can open outside the usual layout tree. x:Name makes
+                   this element identifiable as PART_Popup. Set Placement to Bottom; this configures that
+                   aspect of the element. Take IsOpen from {TemplateBinding IsDropDownOpen} on the control
+                   this template is drawing. Set AllowsTransparency to True; this configures that aspect of
+                   the element. Focusable=False controls whether this element can receive keyboard focus.
+                   Set PopupAnimation to Slide; this configures that aspect of the element.
+              -->
+              <Popup x:Name="PART_Popup" Placement="Bottom" IsOpen="{TemplateBinding IsDropDownOpen}" AllowsTransparency="True" Focusable="False" PopupAnimation="Slide">
+                <!-- Draw a background or border around a child control, with optional rounded corners and
+                     inner spacing. Use #1E2B3B for Background; hexadecimal color digits describe paint,
+                     not the open file's bytes. Use #4C6078 for BorderBrush; hexadecimal color digits
+                     describe paint, not the open file's bytes. BorderThickness 1 sets edge widths (four
+                     numbers mean left/top/right/bottom). CornerRadius 4 rounds the corners. Connect
+                     MinWidth to {Binding ActualWidth, RelativeSource={RelativeSource TemplatedParent}}.
+                     Binding reads from DataContext unless RelativeSource names a different source; TwoWay
+                     sends edits back, and PropertyChanged sends them on each change. MaxHeight=320 limits
+                     the allowed layout size.
+                -->
+                <Border Background="#1E2B3B" BorderBrush="#4C6078" BorderThickness="1" CornerRadius="4" MinWidth="{Binding ActualWidth, RelativeSource={RelativeSource TemplatedParent}}" MaxHeight="320">
+                  <!-- Show content through a scrollable viewing area. -->
+                  <ScrollViewer>
+                    <!-- Place the surrounding list control's item visuals here. Set
+                         KeyboardNavigation.DirectionalNavigation to Contained; this configures that aspect
+                         of the element.
+                    -->
+                    <ItemsPresenter KeyboardNavigation.DirectionalNavigation="Contained" />
+                  </ScrollViewer>
+                </Border>
+              </Popup>
+            </Grid>
+          </ControlTemplate>
+        </Setter.Value>
+      </Setter>
+    </Style>
+    <!-- Each dropdown choice has its own template and selection/hover colors. -->
+    <!-- Group property settings that can be reused by controls. Apply this description to ComboBoxItem
+         controls.
+    -->
+    <Style TargetType="ComboBoxItem">
+      <!-- Supply a property setting for the surrounding style or trigger. The property being configured or
+           tested is Foreground. Get Value from the shared resource {StaticResource TextBrush}.
+      -->
+      <Setter Property="Foreground" Value="{StaticResource TextBrush}" />
+      <!-- Supply a property setting for the surrounding style or trigger. The property being configured or
+           tested is Padding. Use 10,8 as the setting or comparison value.
+      -->
+      <Setter Property="Padding" Value="10,8" />
+      <!-- Supply a property setting for the surrounding style or trigger. The property being configured or
+           tested is Template.
+      -->
+      <Setter Property="Template">
+        <!-- Set the Value property of Setter using the nested elements. -->
+        <Setter.Value>
+          <!-- Describe the visual pieces used to draw a control. Apply this description to ComboBoxItem
+               controls.
+          -->
+          <ControlTemplate TargetType="ComboBoxItem">
+            <!-- Draw a background or border around a child control, with optional rounded corners and
+                 inner spacing. x:Name makes this element identifiable as ChoiceBorder. Use Transparent for
+                 Background; hexadecimal color digits describe paint, not the open file's bytes. Take
+                 Padding from {TemplateBinding Padding} on the control this template is drawing.
+            -->
+            <Border x:Name="ChoiceBorder" Background="Transparent" Padding="{TemplateBinding Padding}">
+              <!-- Display the content supplied by the surrounding control or template. -->
+              <ContentPresenter />
+            </Border>
+            <!-- Set the Triggers property of ControlTemplate using the nested elements. -->
+            <ControlTemplate.Triggers>
+              <!-- Apply the nested settings when the specified control Property equals Value. The property
+                   being configured or tested is IsHighlighted. Use True as the setting or comparison
+                   value.
+              -->
+              <Trigger Property="IsHighlighted" Value="True">
+                <!-- Supply a property setting for the surrounding style or trigger. Apply this setter to
+                     the template element named ChoiceBorder. The property being configured or tested is
+                     Background. Use #31515B as the setting or comparison value.
+                -->
+                <Setter TargetName="ChoiceBorder" Property="Background" Value="#31515B" />
+              </Trigger>
+              <!-- Apply the nested settings when the specified control Property equals Value. The property
+                   being configured or tested is IsSelected. Use True as the setting or comparison value.
+              -->
+              <Trigger Property="IsSelected" Value="True">
+                <!-- Supply a property setting for the surrounding style or trigger. Apply this setter to
+                     the template element named ChoiceBorder. The property being configured or tested is
+                     Background. Use #25433F as the setting or comparison value.
+                -->
+                <Setter TargetName="ChoiceBorder" Property="Background" Value="#25433F" />
+              </Trigger>
+            </ControlTemplate.Triggers>
+          </ControlTemplate>
+        </Setter.Value>
+      </Setter>
+    </Style>
+    <!-- A separator is just a one-unit-high line in the shared border color. -->
+    <!-- Group property settings that can be reused by controls. Apply this description to Separator
+         controls.
+    -->
+    <Style TargetType="Separator">
+      <!-- Supply a property setting for the surrounding style or trigger. The property being configured or
+           tested is Background. Get Value from the shared resource {StaticResource LineBrush}.
+      -->
+      <Setter Property="Background" Value="{StaticResource LineBrush}" />
+      <!-- Supply a property setting for the surrounding style or trigger. The property being configured or
+           tested is Template.
+      -->
+      <Setter Property="Template">
+        <!-- Set the Value property of Setter using the nested elements. -->
+        <Setter.Value>
+          <!-- Describe the visual pieces used to draw a control. Apply this description to Separator
+               controls.
+          -->
+          <ControlTemplate TargetType="Separator">
+            <!-- Draw a background or border around a child control, with optional rounded corners and
+                 inner spacing. Height=1 requests that size in WPF layout units (independent of monitor
+                 pixel density). Take Background from {TemplateBinding Background} on the control this
+                 template is drawing.
+            -->
+            <Border Height="1" Background="{TemplateBinding Background}" />
+          </ControlTemplate>
+        </Setter.Value>
+      </Setter>
+    </Style>
+    <!-- Tooltips and popup menus use the same dark palette as the main window. -->
+    <!-- Group property settings that can be reused by controls. Apply this description to ToolTip
+         controls.
+    -->
+    <Style TargetType="ToolTip">
+      <!-- Supply a property setting for the surrounding style or trigger. The property being configured or
+           tested is Background. Use #243343 as the setting or comparison value.
+      -->
+      <Setter Property="Background" Value="#243343" />
+      <!-- Supply a property setting for the surrounding style or trigger. The property being configured or
+           tested is Foreground. Use #E1EBF5 as the setting or comparison value.
+      -->
+      <Setter Property="Foreground" Value="#E1EBF5" />
+      <!-- Supply a property setting for the surrounding style or trigger. The property being configured or
+           tested is BorderBrush. Use #4F657F as the setting or comparison value.
+      -->
+      <Setter Property="BorderBrush" Value="#4F657F" />
+      <!-- Supply a property setting for the surrounding style or trigger. The property being configured or
+           tested is Padding. Use 10 as the setting or comparison value.
+      -->
+      <Setter Property="Padding" Value="10" />
+    </Style>
+    <!-- Group property settings that can be reused by controls. Apply this description to ContextMenu
+         controls.
+    -->
+    <Style TargetType="ContextMenu">
+      <!-- Supply a property setting for the surrounding style or trigger. The property being configured or
+           tested is Background. Use #1C2938 as the setting or comparison value.
+      -->
+      <Setter Property="Background" Value="#1C2938" />
+      <!-- Supply a property setting for the surrounding style or trigger. The property being configured or
+           tested is Foreground. Get Value from the shared resource {StaticResource TextBrush}.
+      -->
+      <Setter Property="Foreground" Value="{StaticResource TextBrush}" />
+      <!-- Supply a property setting for the surrounding style or trigger. The property being configured or
+           tested is BorderBrush. Use #43566E as the setting or comparison value.
+      -->
+      <Setter Property="BorderBrush" Value="#43566E" />
+    </Style>
+    <!-- Group property settings that can be reused by controls. Apply this description to MenuItem
+         controls.
+    -->
+    <Style TargetType="MenuItem">
+      <!-- Supply a property setting for the surrounding style or trigger. The property being configured or
+           tested is Background. Use #1C2938 as the setting or comparison value.
+      -->
+      <Setter Property="Background" Value="#1C2938" />
+      <!-- Supply a property setting for the surrounding style or trigger. The property being configured or
+           tested is Foreground. Get Value from the shared resource {StaticResource TextBrush}.
+      -->
+      <Setter Property="Foreground" Value="{StaticResource TextBrush}" />
+    </Style>
+    <!-- Clicking the track beside a scrollbar thumb repeats a page command.
              This transparent RepeatButton is the clickable track area. -->
-        <Style x:Key="ScrollPage" TargetType="RepeatButton"><Setter Property="Focusable" Value="False"/><Setter Property="Template"><Setter.Value><ControlTemplate TargetType="RepeatButton"><Border Background="Transparent"/></ControlTemplate></Setter.Value></Setter></Style>
-        <!-- A Thumb is WPF's draggable handle. Its appearance changes on hover
+    <!-- Group property settings that can be reused by controls. x:Key names this reusable resource
+         ScrollPage. Apply this description to RepeatButton controls.
+    -->
+    <Style x:Key="ScrollPage" TargetType="RepeatButton">
+      <!-- Supply a property setting for the surrounding style or trigger. The property being configured or
+           tested is Focusable. Use False as the setting or comparison value.
+      -->
+      <Setter Property="Focusable" Value="False" />
+      <!-- Supply a property setting for the surrounding style or trigger. The property being configured or
+           tested is Template.
+      -->
+      <Setter Property="Template">
+        <!-- Set the Value property of Setter using the nested elements. -->
+        <Setter.Value>
+          <!-- Describe the visual pieces used to draw a control. Apply this description to RepeatButton
+               controls.
+          -->
+          <ControlTemplate TargetType="RepeatButton">
+            <!-- Draw a background or border around a child control, with optional rounded corners and
+                 inner spacing. Use Transparent for Background; hexadecimal color digits describe paint,
+                 not the open file's bytes.
+            -->
+            <Border Background="Transparent" />
+          </ControlTemplate>
+        </Setter.Value>
+      </Setter>
+    </Style>
+    <!-- A Thumb is WPF's draggable handle. Its appearance changes on hover
              and drag; the containing Track turns movement into a scroll value. -->
-        <Style x:Key="ScrollGrip" TargetType="Thumb"><Setter Property="Template"><Setter.Value><ControlTemplate TargetType="Thumb"><Border x:Name="Grip" Background="#405368" CornerRadius="4" Margin="2"/><ControlTemplate.Triggers><Trigger Property="IsMouseOver" Value="True"><Setter TargetName="Grip" Property="Background" Value="#6A9C9A"/></Trigger><Trigger Property="IsDragging" Value="True"><Setter TargetName="Grip" Property="Background" Value="#6CE1CE"/></Trigger></ControlTemplate.Triggers></ControlTemplate></Setter.Value></Setter></Style>
-        <!-- PART_Track connects the current value, maximum, and viewport size to
+    <!-- Group property settings that can be reused by controls. x:Key names this reusable resource
+         ScrollGrip. Apply this description to Thumb controls.
+    -->
+    <Style x:Key="ScrollGrip" TargetType="Thumb">
+      <!-- Supply a property setting for the surrounding style or trigger. The property being configured or
+           tested is Template.
+      -->
+      <Setter Property="Template">
+        <!-- Set the Value property of Setter using the nested elements. -->
+        <Setter.Value>
+          <!-- Describe the visual pieces used to draw a control. Apply this description to Thumb controls. -->
+          <ControlTemplate TargetType="Thumb">
+            <!-- Draw a background or border around a child control, with optional rounded corners and
+                 inner spacing. x:Name makes this element identifiable as Grip. Use #405368 for Background;
+                 hexadecimal color digits describe paint, not the open file's bytes. CornerRadius 4 rounds
+                 the corners. Margin 2 adds outside spacing (one number: all sides; two:
+                 horizontal/vertical; four: left/top/right/bottom).
+            -->
+            <Border x:Name="Grip" Background="#405368" CornerRadius="4" Margin="2" />
+            <!-- Set the Triggers property of ControlTemplate using the nested elements. -->
+            <ControlTemplate.Triggers>
+              <!-- Apply the nested settings when the specified control Property equals Value. The property
+                   being configured or tested is IsMouseOver. Use True as the setting or comparison value.
+              -->
+              <Trigger Property="IsMouseOver" Value="True">
+                <!-- Supply a property setting for the surrounding style or trigger. Apply this setter to
+                     the template element named Grip. The property being configured or tested is
+                     Background. Use #6A9C9A as the setting or comparison value.
+                -->
+                <Setter TargetName="Grip" Property="Background" Value="#6A9C9A" />
+              </Trigger>
+              <!-- Apply the nested settings when the specified control Property equals Value. The property
+                   being configured or tested is IsDragging. Use True as the setting or comparison value.
+              -->
+              <Trigger Property="IsDragging" Value="True">
+                <!-- Supply a property setting for the surrounding style or trigger. Apply this setter to
+                     the template element named Grip. The property being configured or tested is
+                     Background. Use #6CE1CE as the setting or comparison value.
+                -->
+                <Setter TargetName="Grip" Property="Background" Value="#6CE1CE" />
+              </Trigger>
+            </ControlTemplate.Triggers>
+          </ControlTemplate>
+        </Setter.Value>
+      </Setter>
+    </Style>
+    <!-- PART_Track connects the current value, maximum, and viewport size to
              the draggable thumb and page buttons. ViewportSize describes how much
              content is visible, which determines the relative thumb length.
              Vertical scrolling is the default; the orientation trigger substitutes
              a horizontal template with left/right page commands. These scrollbars
              are shared by the grid, inspector, and ordinary scrollable controls. -->
-        <Style TargetType="ScrollBar"><Setter Property="Background" Value="#151F2B"/><Setter Property="Width" Value="12"/><Setter Property="Template"><Setter.Value><ControlTemplate TargetType="ScrollBar"><Grid Background="{TemplateBinding Background}"><Track x:Name="PART_Track" IsDirectionReversed="True" Orientation="Vertical" Minimum="{TemplateBinding Minimum}" Maximum="{TemplateBinding Maximum}" Value="{TemplateBinding Value}" ViewportSize="{TemplateBinding ViewportSize}"><Track.DecreaseRepeatButton><RepeatButton Command="ScrollBar.PageUpCommand" Style="{StaticResource ScrollPage}"/></Track.DecreaseRepeatButton><Track.Thumb><Thumb Style="{StaticResource ScrollGrip}" MinHeight="20"/></Track.Thumb><Track.IncreaseRepeatButton><RepeatButton Command="ScrollBar.PageDownCommand" Style="{StaticResource ScrollPage}"/></Track.IncreaseRepeatButton></Track></Grid></ControlTemplate></Setter.Value></Setter><Style.Triggers><Trigger Property="Orientation" Value="Horizontal"><Setter Property="Width" Value="Auto"/><Setter Property="Height" Value="12"/><Setter Property="Template"><Setter.Value><ControlTemplate TargetType="ScrollBar"><Grid Background="{TemplateBinding Background}"><Track x:Name="PART_Track" Orientation="Horizontal" Minimum="{TemplateBinding Minimum}" Maximum="{TemplateBinding Maximum}" Value="{TemplateBinding Value}" ViewportSize="{TemplateBinding ViewportSize}"><Track.DecreaseRepeatButton><RepeatButton Command="ScrollBar.PageLeftCommand" Style="{StaticResource ScrollPage}"/></Track.DecreaseRepeatButton><Track.Thumb><Thumb Style="{StaticResource ScrollGrip}" MinWidth="20"/></Track.Thumb><Track.IncreaseRepeatButton><RepeatButton Command="ScrollBar.PageRightCommand" Style="{StaticResource ScrollPage}"/></Track.IncreaseRepeatButton></Track></Grid></ControlTemplate></Setter.Value></Setter></Trigger></Style.Triggers></Style>
-    </Application.Resources>
+    <!-- Group property settings that can be reused by controls. Apply this description to ScrollBar
+         controls.
+    -->
+    <Style TargetType="ScrollBar">
+      <!-- Supply a property setting for the surrounding style or trigger. The property being configured or
+           tested is Background. Use #151F2B as the setting or comparison value.
+      -->
+      <Setter Property="Background" Value="#151F2B" />
+      <!-- Supply a property setting for the surrounding style or trigger. The property being configured or
+           tested is Width. Use 12 as the setting or comparison value.
+      -->
+      <Setter Property="Width" Value="12" />
+      <!-- Supply a property setting for the surrounding style or trigger. The property being configured or
+           tested is Template.
+      -->
+      <Setter Property="Template">
+        <!-- Set the Value property of Setter using the nested elements. -->
+        <Setter.Value>
+          <!-- Describe the visual pieces used to draw a control. Apply this description to ScrollBar
+               controls.
+          -->
+          <ControlTemplate TargetType="ScrollBar">
+            <!-- Arrange child controls in rows and columns; unspecified row or column numbers are zero.
+                 Take Background from {TemplateBinding Background} on the control this template is drawing.
+            -->
+            <Grid Background="{TemplateBinding Background}">
+              <!-- Connect scroll values to a draggable handle and its page buttons. x:Name makes this
+                   element identifiable as PART_Track. Set IsDirectionReversed to True; this configures
+                   that aspect of the element. Arrange or move along the vertical direction. Take Minimum
+                   from {TemplateBinding Minimum} on the control this template is drawing. Take Maximum
+                   from {TemplateBinding Maximum} on the control this template is drawing. Take Value from
+                   {TemplateBinding Value} on the control this template is drawing. Take ViewportSize from
+                   {TemplateBinding ViewportSize} on the control this template is drawing.
+              -->
+              <Track x:Name="PART_Track" IsDirectionReversed="True" Orientation="Vertical" Minimum="{TemplateBinding Minimum}" Maximum="{TemplateBinding Maximum}" Value="{TemplateBinding Value}" ViewportSize="{TemplateBinding ViewportSize}">
+                <!-- Set the DecreaseRepeatButton property of Track using the nested elements. -->
+                <Track.DecreaseRepeatButton>
+                  <!-- Provide a button that repeats its action while held down. Invoke
+                       ScrollBar.PageUpCommand when this control is activated. Get Style from the shared
+                       resource {StaticResource ScrollPage}.
+                  -->
+                  <RepeatButton Command="ScrollBar.PageUpCommand" Style="{StaticResource ScrollPage}" />
+                </Track.DecreaseRepeatButton>
+                <!-- Set the Thumb property of Track using the nested elements. -->
+                <Track.Thumb>
+                  <!-- Provide a handle that the user can drag. Get Style from the shared resource
+                       {StaticResource ScrollGrip}. MinHeight=20 limits the allowed layout size.
+                  -->
+                  <Thumb Style="{StaticResource ScrollGrip}" MinHeight="20" />
+                </Track.Thumb>
+                <!-- Set the IncreaseRepeatButton property of Track using the nested elements. -->
+                <Track.IncreaseRepeatButton>
+                  <!-- Provide a button that repeats its action while held down. Invoke
+                       ScrollBar.PageDownCommand when this control is activated. Get Style from the shared
+                       resource {StaticResource ScrollPage}.
+                  -->
+                  <RepeatButton Command="ScrollBar.PageDownCommand" Style="{StaticResource ScrollPage}" />
+                </Track.IncreaseRepeatButton>
+              </Track>
+            </Grid>
+          </ControlTemplate>
+        </Setter.Value>
+      </Setter>
+      <!-- Set the Triggers property of Style using the nested elements. -->
+      <Style.Triggers>
+        <!-- Apply the nested settings when the specified control Property equals Value. The property being
+             configured or tested is Orientation. Use Horizontal as the setting or comparison value.
+        -->
+        <Trigger Property="Orientation" Value="Horizontal">
+          <!-- Supply a property setting for the surrounding style or trigger. The property being
+               configured or tested is Width. Use Auto as the setting or comparison value.
+          -->
+          <Setter Property="Width" Value="Auto" />
+          <!-- Supply a property setting for the surrounding style or trigger. The property being
+               configured or tested is Height. Use 12 as the setting or comparison value.
+          -->
+          <Setter Property="Height" Value="12" />
+          <!-- Supply a property setting for the surrounding style or trigger. The property being
+               configured or tested is Template.
+          -->
+          <Setter Property="Template">
+            <!-- Set the Value property of Setter using the nested elements. -->
+            <Setter.Value>
+              <!-- Describe the visual pieces used to draw a control. Apply this description to ScrollBar
+                   controls.
+              -->
+              <ControlTemplate TargetType="ScrollBar">
+                <!-- Arrange child controls in rows and columns; unspecified row or column numbers are
+                     zero. Take Background from {TemplateBinding Background} on the control this template
+                     is drawing.
+                -->
+                <Grid Background="{TemplateBinding Background}">
+                  <!-- Connect scroll values to a draggable handle and its page buttons. x:Name makes this
+                       element identifiable as PART_Track. Arrange or move along the horizontal direction.
+                       Take Minimum from {TemplateBinding Minimum} on the control this template is drawing.
+                       Take Maximum from {TemplateBinding Maximum} on the control this template is drawing.
+                       Take Value from {TemplateBinding Value} on the control this template is drawing.
+                       Take ViewportSize from {TemplateBinding ViewportSize} on the control this template
+                       is drawing.
+                  -->
+                  <Track x:Name="PART_Track" Orientation="Horizontal" Minimum="{TemplateBinding Minimum}" Maximum="{TemplateBinding Maximum}" Value="{TemplateBinding Value}" ViewportSize="{TemplateBinding ViewportSize}">
+                    <!-- Set the DecreaseRepeatButton property of Track using the nested elements. -->
+                    <Track.DecreaseRepeatButton>
+                      <!-- Provide a button that repeats its action while held down. Invoke
+                           ScrollBar.PageLeftCommand when this control is activated. Get Style from the
+                           shared resource {StaticResource ScrollPage}.
+                      -->
+                      <RepeatButton Command="ScrollBar.PageLeftCommand" Style="{StaticResource ScrollPage}" />
+                    </Track.DecreaseRepeatButton>
+                    <!-- Set the Thumb property of Track using the nested elements. -->
+                    <Track.Thumb>
+                      <!-- Provide a handle that the user can drag. Get Style from the shared resource
+                           {StaticResource ScrollGrip}. MinWidth=20 limits the allowed layout size.
+                      -->
+                      <Thumb Style="{StaticResource ScrollGrip}" MinWidth="20" />
+                    </Track.Thumb>
+                    <!-- Set the IncreaseRepeatButton property of Track using the nested elements. -->
+                    <Track.IncreaseRepeatButton>
+                      <!-- Provide a button that repeats its action while held down. Invoke
+                           ScrollBar.PageRightCommand when this control is activated. Get Style from the
+                           shared resource {StaticResource ScrollPage}.
+                      -->
+                      <RepeatButton Command="ScrollBar.PageRightCommand" Style="{StaticResource ScrollPage}" />
+                    </Track.IncreaseRepeatButton>
+                  </Track>
+                </Grid>
+              </ControlTemplate>
+            </Setter.Value>
+          </Setter>
+        </Trigger>
+      </Style.Triggers>
+    </Style>
+  </Application.Resources>
 </Application>

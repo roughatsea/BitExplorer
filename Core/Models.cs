@@ -1,3 +1,17 @@
+// READING THIS FILE
+// A program is a set of instructions. This file defines some of those instructions;
+// defining a method does not run it. A call such as Refresh() asks it to run.
+// Comments explain the next instruction or the whole block introduced below them.
+// Within a running block, instructions normally run from top to bottom. Braces { }
+// group a body; a closing brace ends that group. Blank lines only separate ideas.
+// A semicolon ends an instruction. A long instruction can continue on several lines;
+// its commas, closing parentheses and braces belong to the explanation at its start.
+// Names identify values or operations: x = y stores y in x; x == y compares them.
+// A dot selects something belonging to an object, and (...) supplies inputs to a call.
+// See docs/ReadingTheCode.md for types, symbols, examples, and the application map.
+
+// Place this file's definitions in the BitExplorer.Core naming group, which prevents clashes with names in
+// other groups.
 namespace BitExplorer.Core;
 
 /// <summary>Chooses whether each stored byte is drawn as one number or as its eight individual bits.</summary>
@@ -55,17 +69,37 @@ public sealed class DisplaySettings
     /// <summary>Rejects unknown enum values and dimensions that would make layout calculations invalid.</summary>
     internal void Validate()
     {
+        // If it is not the case that Enum.IsDefined(ViewMode) is true, or it is not the case that
+        // Enum.IsDefined(ByteBase) is true, or it is not the case that Enum.IsDefined(OffsetBase) is true,
+        // or it is not the case that Enum.IsDefined(BitNumbering) is true, stop this normal path by
+        // reporting InvalidDataException; the arguments carry the error details.
         if (!Enum.IsDefined(ViewMode) || !Enum.IsDefined(ByteBase) ||
             !Enum.IsDefined(OffsetBase) || !Enum.IsDefined(BitNumbering))
+            // Stop this normal path by reporting InvalidDataException; the arguments carry the error
+            // details.
             throw new InvalidDataException("The display settings contain an unknown notation or numbering mode.");
+        // If BytesPerRow matches < 1 or > 256, stop this normal path by reporting InvalidDataException; the
+        // arguments carry the error details.
         if (BytesPerRow is < 1 or > 256)
+            // Stop this normal path by reporting InvalidDataException; the arguments carry the error
+            // details.
             throw new InvalidDataException("Bytes per row must be between 1 and 256.");
         // NaN and infinity are valid double values but cannot describe a usable
         // column. Bounds also prevent unreasonable text-padding allocations.
         foreach (double width in new[] { OffsetWidth, DataWidth, AsciiWidth })
+            // If it is not the case that double.IsFinite(width) is true, or width is less than 24, or width
+            // is greater than 16384, stop this normal path by reporting InvalidDataException; the arguments
+            // carry the error details.
             if (!double.IsFinite(width) || width < 24 || width > 16384)
+                // Stop this normal path by reporting InvalidDataException; the arguments carry the error
+                // details.
                 throw new InvalidDataException("Column widths must be finite and between 24 and 16384 pixels.");
+        // If it is not the case that double.IsFinite(CharacterWidth) is true, or CharacterWidth is less
+        // than 1, or CharacterWidth is greater than 64, stop this normal path by reporting
+        // InvalidDataException; the arguments carry the error details.
         if (!double.IsFinite(CharacterWidth) || CharacterWidth < 1 || CharacterWidth > 64)
+            // Stop this normal path by reporting InvalidDataException; the arguments carry the error
+            // details.
             throw new InvalidDataException("The character width must be finite and between 1 and 64 pixels.");
     }
 }
@@ -95,7 +129,9 @@ public sealed class NamedField
     // same List. ToList creates the separate list needed by dialogs and undo history.
     public NamedField Clone() => new()
     {
+        // Set this new object's Id entry to Id.
         Id = Id, Name = Name, Color = Color, Notes = Notes,
+        // Set this new object's OrderedBits entry to a separate list containing OrderedBits's items.
         OrderedBits = OrderedBits.ToList()
     };
 }

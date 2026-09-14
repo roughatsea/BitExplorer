@@ -1,5 +1,14 @@
+<!-- READING THIS FILE
+     Markup describes a tree. <Name ...> begins an element; </Name> ends it.
+     <Name ... /> is a complete element with no children. Nested elements belong
+     to their surrounding element. Attributes such as Width="100" set properties.
+     Comments cover the next element and its attributes; closing tags finish that
+     same explanation. Indentation shows nesting and does not create behavior.
+     See docs/ReadingTheCode.md for a worked example and the project map. -->
+<!-- Group the projects that belong to this solution. -->
 <Solution>
   <!-- The solution opens the desktop project in the IDE. Its project reference
        brings in Core; the standalone test projects can be run with the README commands. -->
+  <!-- Include this project in the solution's development workspace. Locate the project at WpfApp1.csproj. -->
   <Project Path="WpfApp1.csproj" />
 </Solution>

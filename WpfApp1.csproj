@@ -1,25 +1,49 @@
-﻿<Project Sdk="Microsoft.NET.Sdk">
-
+<!-- READING THIS FILE
+     Markup describes a tree. <Name ...> begins an element; </Name> ends it.
+     <Name ... /> is a complete element with no children. Nested elements belong
+     to their surrounding element. Attributes such as Width="100" set properties.
+     Comments cover the next element and its attributes; closing tags finish that
+     same explanation. Indentation shows nesting and does not create behavior.
+     See docs/ReadingTheCode.md for a worked example and the project map. -->
+<!-- Describe one buildable project and the tools used to compile it. Use Microsoft.NET.Sdk for the
+     standard build rules.
+-->
+<Project Sdk="Microsoft.NET.Sdk">
   <!-- Build a Windows desktop executable. UseWPF enables XAML compilation;
        net10.0-windows selects the .NET and Windows APIs. Nullable checks values
        that might be absent. ImplicitUsings supplies common C# using directives. -->
+  <!-- Group named build settings; each child gives a setting its value. -->
   <PropertyGroup>
+    <!-- Produce a Windows application that does not open its own console window. -->
     <OutputType>WinExe</OutputType>
+    <!-- Compile against net10.0-windows; this selects the available .NET APIs and, with -windows, the
+         Windows target.
+    -->
     <TargetFramework>net10.0-windows</TargetFramework>
+    <!-- Enable compiler checks for references that could be null (missing). -->
     <Nullable>enable</Nullable>
+    <!-- Make common C# namespaces available automatically in this project. -->
     <ImplicitUsings>enable</ImplicitUsings>
+    <!-- Enable WPF desktop support, including compiling the XAML files. -->
     <UseWPF>true</UseWPF>
+    <!-- Name the compiled program/library BitExplorer. -->
     <AssemblyName>BitExplorer</AssemblyName>
+    <!-- Record Bit Explorer as the product name in the output's metadata. -->
     <Product>Bit Explorer</Product>
+    <!-- Record this human-readable product description in the output's metadata. -->
     <Description>A field-aware binary explorer and editor</Description>
   </PropertyGroup>
-
   <!-- The SDK normally discovers C# in subfolders. Core and the test harnesses
        are separate projects, so do not also compile their source into the app.
        Reference Core's compiled output instead. -->
+  <!-- Group files or project references used by the build. -->
   <ItemGroup>
+    <!-- Adjust which C# source files are compiled into this project. Exclude paths matching
+         Core\**\*.cs;Tests\**\*.cs;Tests.Wpf\**\*.cs; ** searches nested folders and * matches filename
+         text.
+    -->
     <Compile Remove="Core\**\*.cs;Tests\**\*.cs;Tests.Wpf\**\*.cs" />
+    <!-- Build and use the code from the referenced project. Include Core\BitExplorer.Core.csproj. -->
     <ProjectReference Include="Core\BitExplorer.Core.csproj" />
   </ItemGroup>
-
 </Project>

@@ -1,14 +1,30 @@
-<Window x:Class="WpfApp1.MainWindow"
-        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
-        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-        xmlns:grid="clr-namespace:WpfApp1.Controls"
-        xmlns:views="clr-namespace:WpfApp1.Views"
-        Title="{Binding WindowTitle}" Width="1540" Height="960" MinWidth="1100" MinHeight="720"
-        Background="{StaticResource CanvasBrush}" Foreground="{StaticResource TextBrush}"
-        FontFamily="Segoe UI" FontSize="13" WindowStartupLocation="CenterScreen"
-        AllowDrop="True" Drop="Window_Drop" DragOver="Window_DragOver" Closing="Window_Closing"
-        PreviewKeyDown="Window_PreviewKeyDown" UseLayoutRounding="True">
-    <!-- XAML describes a tree of objects: tags create controls, attributes set
+<!-- READING THIS FILE
+     Markup describes a tree. <Name ...> begins an element; </Name> ends it.
+     <Name ... /> is a complete element with no children. Nested elements belong
+     to their surrounding element. Attributes such as Width="100" set properties.
+     Comments cover the next element and its attributes; closing tags finish that
+     same explanation. Indentation shows nesting and does not create behavior.
+     See docs/ReadingTheCode.md for a worked example and the project map. -->
+<!-- Describe the top-level desktop window. x:Class links this markup to the C# type WpfApp1.MainWindow.
+     The default xmlns identifies a family of markup names; its URI is a name, not a file downloaded at
+     runtime. The xmlns:x prefix identifies a family of markup names; its URI is a name, not a file
+     downloaded at runtime. The xmlns:grid prefix identifies a family of markup names; its URI is a name,
+     not a file downloaded at runtime. The xmlns:views prefix identifies a family of markup names; its URI
+     is a name, not a file downloaded at runtime. Connect Title to {Binding WindowTitle}. Binding reads
+     from DataContext unless RelativeSource names a different source; TwoWay sends edits back, and
+     PropertyChanged sends them on each change. Width=1540 requests that size in WPF layout units
+     (independent of monitor pixel density). Height=960 requests that size in WPF layout units (independent
+     of monitor pixel density). MinWidth=1100 limits the allowed layout size. MinHeight=720 limits the
+     allowed layout size. Get Background from the shared resource {StaticResource CanvasBrush}. Get
+     Foreground from the shared resource {StaticResource TextBrush}. Use the Segoe UI typeface. Draw
+     characters at font size 13. Set WindowStartupLocation to CenterScreen; this configures that aspect of
+     the element. Set AllowDrop to True; this configures that aspect of the element. When Drop occurs, run
+     the C# handler Window_Drop. When DragOver occurs, run the C# handler Window_DragOver. When Closing
+     occurs, run the C# handler Window_Closing. When PreviewKeyDown occurs, run the C# handler
+     Window_PreviewKeyDown. Set UseLayoutRounding to True; this configures that aspect of the element.
+-->
+<Window x:Class="WpfApp1.MainWindow" xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation" xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml" xmlns:grid="clr-namespace:WpfApp1.Controls" xmlns:views="clr-namespace:WpfApp1.Views" Title="{Binding WindowTitle}" Width="1540" Height="960" MinWidth="1100" MinHeight="720" Background="{StaticResource CanvasBrush}" Foreground="{StaticResource TextBrush}" FontFamily="Segoe UI" FontSize="13" WindowStartupLocation="CenterScreen" AllowDrop="True" Drop="Window_Drop" DragOver="Window_DragOver" Closing="Window_Closing" PreviewKeyDown="Window_PreviewKeyDown" UseLayoutRounding="True">
+  <!-- XAML describes a tree of objects: tags create controls, attributes set
          their properties, and nested tags supply children or complex property values.
          x:Class connects this file to MainWindow.xaml.cs. The views: and grid:
          prefixes let us use our own C# controls alongside built-in WPF controls.
@@ -18,148 +34,601 @@
          a shared style/brush from App.xaml. Disabling this root Grid disables
          its children during file operations, while the owner Window still exists
          and can own dialogs. All layout sizes are WPF device-independent units. -->
-    <Grid IsEnabled="{Binding IsNotBusy}">
-        <!-- Rows are numbered from zero. Fixed rows hold the title/toolbars/status;
+  <!-- Arrange child controls in rows and columns; unspecified row or column numbers are zero. Connect
+       IsEnabled to {Binding IsNotBusy}. Binding reads from DataContext unless RelativeSource names a
+       different source; TwoWay sends edits back, and PropertyChanged sends them on each change.
+  -->
+  <Grid IsEnabled="{Binding IsNotBusy}">
+    <!-- Rows are numbered from zero. Fixed rows hold the title/toolbars/status;
              * gives the data area all remaining height. Auto elsewhere means
              "use the size the content needs." A missing Grid.Row defaults to zero. -->
-        <Grid.RowDefinitions>
-            <RowDefinition Height="76"/><RowDefinition Height="52"/><RowDefinition Height="54"/>
-            <RowDefinition Height="*"/><RowDefinition Height="32"/>
-        </Grid.RowDefinitions>
-        <!-- Header: brand on the left, current document in the flexible middle,
+    <!-- Set the RowDefinitions property of Grid using the nested elements. -->
+    <Grid.RowDefinitions>
+      <!-- Define one row; rows are numbered from zero in their written order. Height=76 requests that size
+           in WPF layout units (independent of monitor pixel density).
+      -->
+      <RowDefinition Height="76" />
+      <!-- Define one row; rows are numbered from zero in their written order. Height=52 requests that size
+           in WPF layout units (independent of monitor pixel density).
+      -->
+      <RowDefinition Height="52" />
+      <!-- Define one row; rows are numbered from zero in their written order. Height=54 requests that size
+           in WPF layout units (independent of monitor pixel density).
+      -->
+      <RowDefinition Height="54" />
+      <!-- Define one row; rows are numbered from zero in their written order. Height=* takes a weighted
+           share of the available space.
+      -->
+      <RowDefinition Height="*" />
+      <!-- Define one row; rows are numbered from zero in their written order. Height=32 requests that size
+           in WPF layout units (independent of monitor pixel density).
+      -->
+      <RowDefinition Height="32" />
+    </Grid.RowDefinitions>
+    <!-- Header: brand on the left, current document in the flexible middle,
              and save state on the right. Margin is outside a control; Padding
              is inside it. Four-number values mean left, top, right, bottom. -->
-        <Border Background="#141B26" BorderBrush="{StaticResource LineBrush}" BorderThickness="0,0,0,1" Padding="22,0">
-            <Grid>
-                <Grid.ColumnDefinitions><ColumnDefinition Width="Auto"/><ColumnDefinition Width="*"/><ColumnDefinition Width="Auto"/></Grid.ColumnDefinitions>
-                <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
-                    <Border Width="40" Height="40" CornerRadius="10" Background="#193E40" Margin="0,0,13,0">
-                        <TextBlock Text="01" FontFamily="Consolas" FontSize="21" FontWeight="SemiBold" Foreground="#6CE1CE" HorizontalAlignment="Center" VerticalAlignment="Center"/>
-                    </Border>
-                    <StackPanel>
-                        <TextBlock Text="BIT EXPLORER" FontSize="17" FontWeight="SemiBold"/>
-                        <TextBlock Text="Look closer. Understand every bit." Foreground="{StaticResource MutedBrush}" FontSize="11" Margin="0,3,0,0"/>
-                    </StackPanel>
-                </StackPanel>
-                <StackPanel Grid.Column="1" VerticalAlignment="Center" Margin="36,0,20,0">
-                    <TextBlock Text="{Binding DocumentTitle}" FontWeight="SemiBold" TextTrimming="CharacterEllipsis" FontSize="15"/>
-                    <TextBlock Text="{Binding DocumentSubtitle}" Foreground="{StaticResource MutedBrush}" TextTrimming="CharacterEllipsis" Margin="0,4,0,0" FontSize="11"/>
-                </StackPanel>
-                <Border Grid.Column="2" Background="#202C39" CornerRadius="5" VerticalAlignment="Center" Padding="10,6">
-                    <TextBlock Text="{Binding DirtyLabel}" FontSize="11">
-                        <!-- A DataTrigger changes appearance when a bound value
+    <!-- Draw a background or border around a child control, with optional rounded corners and inner
+         spacing. Use #141B26 for Background; hexadecimal color digits describe paint, not the open file's
+         bytes. Get BorderBrush from the shared resource {StaticResource LineBrush}. BorderThickness
+         0,0,0,1 sets edge widths (four numbers mean left/top/right/bottom). Padding 22,0 adds inside
+         spacing using the same one-, two-, or four-number order as Margin.
+    -->
+    <Border Background="#141B26" BorderBrush="{StaticResource LineBrush}" BorderThickness="0,0,0,1" Padding="22,0">
+      <!-- Arrange child controls in rows and columns; unspecified row or column numbers are zero. -->
+      <Grid>
+        <!-- Set the ColumnDefinitions property of Grid using the nested elements. -->
+        <Grid.ColumnDefinitions>
+          <!-- Define one column; columns are numbered from zero in their written order. Width=Auto sizes
+               to the content.
+          -->
+          <ColumnDefinition Width="Auto" />
+          <!-- Define one column; columns are numbered from zero in their written order. Width=* takes a
+               weighted share of the available space.
+          -->
+          <ColumnDefinition Width="*" />
+          <!-- Define one column; columns are numbered from zero in their written order. Width=Auto sizes
+               to the content.
+          -->
+          <ColumnDefinition Width="Auto" />
+        </Grid.ColumnDefinitions>
+        <!-- Place child controls one after another; the default direction is vertical. Arrange or move
+             along the horizontal direction. VerticalAlignment=Center positions the element or its contents
+             along that axis.
+        -->
+        <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
+          <!-- Draw a background or border around a child control, with optional rounded corners and inner
+               spacing. Width=40 requests that size in WPF layout units (independent of monitor pixel
+               density). Height=40 requests that size in WPF layout units (independent of monitor pixel
+               density). CornerRadius 10 rounds the corners. Use #193E40 for Background; hexadecimal color
+               digits describe paint, not the open file's bytes. Margin 0,0,13,0 adds outside spacing (one
+               number: all sides; two: horizontal/vertical; four: left/top/right/bottom).
+          -->
+          <Border Width="40" Height="40" CornerRadius="10" Background="#193E40" Margin="0,0,13,0">
+            <!-- Display text that the user cannot directly edit. Show the text “01”. Use the Consolas
+                 typeface. Draw characters at font size 21. Use SemiBold text weight. Use #6CE1CE for
+                 Foreground; hexadecimal color digits describe paint, not the open file's bytes.
+                 HorizontalAlignment=Center positions the element or its contents along that axis.
+                 VerticalAlignment=Center positions the element or its contents along that axis.
+            -->
+            <TextBlock Text="01" FontFamily="Consolas" FontSize="21" FontWeight="SemiBold" Foreground="#6CE1CE" HorizontalAlignment="Center" VerticalAlignment="Center" />
+          </Border>
+          <!-- Place child controls one after another; the default direction is vertical. -->
+          <StackPanel>
+            <!-- Display text that the user cannot directly edit. Show the text “BIT EXPLORER”. Draw
+                 characters at font size 17. Use SemiBold text weight.
+            -->
+            <TextBlock Text="BIT EXPLORER" FontSize="17" FontWeight="SemiBold" />
+            <!-- Display text that the user cannot directly edit. Show the text “Look closer. Understand
+                 every bit.”. Get Foreground from the shared resource {StaticResource MutedBrush}. Draw
+                 characters at font size 11. Margin 0,3,0,0 adds outside spacing (one number: all sides;
+                 two: horizontal/vertical; four: left/top/right/bottom).
+            -->
+            <TextBlock Text="Look closer. Understand every bit." Foreground="{StaticResource MutedBrush}" FontSize="11" Margin="0,3,0,0" />
+          </StackPanel>
+        </StackPanel>
+        <!-- Place child controls one after another; the default direction is vertical. Grid.Column=1
+             chooses that zero-based grid position. VerticalAlignment=Center positions the element or its
+             contents along that axis. Margin 36,0,20,0 adds outside spacing (one number: all sides; two:
+             horizontal/vertical; four: left/top/right/bottom).
+        -->
+        <StackPanel Grid.Column="1" VerticalAlignment="Center" Margin="36,0,20,0">
+          <!-- Display text that the user cannot directly edit. Connect Text to {Binding DocumentTitle}.
+               Binding reads from DataContext unless RelativeSource names a different source; TwoWay sends
+               edits back, and PropertyChanged sends them on each change. Use SemiBold text weight.
+               TextTrimming=CharacterEllipsis specifies how text that cannot fit is shortened. Draw
+               characters at font size 15.
+          -->
+          <TextBlock Text="{Binding DocumentTitle}" FontWeight="SemiBold" TextTrimming="CharacterEllipsis" FontSize="15" />
+          <!-- Display text that the user cannot directly edit. Connect Text to {Binding DocumentSubtitle}.
+               Binding reads from DataContext unless RelativeSource names a different source; TwoWay sends
+               edits back, and PropertyChanged sends them on each change. Get Foreground from the shared
+               resource {StaticResource MutedBrush}. TextTrimming=CharacterEllipsis specifies how text that
+               cannot fit is shortened. Margin 0,4,0,0 adds outside spacing (one number: all sides; two:
+               horizontal/vertical; four: left/top/right/bottom). Draw characters at font size 11.
+          -->
+          <TextBlock Text="{Binding DocumentSubtitle}" Foreground="{StaticResource MutedBrush}" TextTrimming="CharacterEllipsis" Margin="0,4,0,0" FontSize="11" />
+        </StackPanel>
+        <!-- Draw a background or border around a child control, with optional rounded corners and inner
+             spacing. Grid.Column=2 chooses that zero-based grid position. Use #202C39 for Background;
+             hexadecimal color digits describe paint, not the open file's bytes. CornerRadius 5 rounds the
+             corners. VerticalAlignment=Center positions the element or its contents along that axis.
+             Padding 10,6 adds inside spacing using the same one-, two-, or four-number order as Margin.
+        -->
+        <Border Grid.Column="2" Background="#202C39" CornerRadius="5" VerticalAlignment="Center" Padding="10,6">
+          <!-- Display text that the user cannot directly edit. Connect Text to {Binding DirtyLabel}.
+               Binding reads from DataContext unless RelativeSource names a different source; TwoWay sends
+               edits back, and PropertyChanged sends them on each change. Draw characters at font size 11.
+          -->
+          <TextBlock Text="{Binding DirtyLabel}" FontSize="11">
+            <!-- A DataTrigger changes appearance when a bound value
                              matches, so no C# handler needs to recolor this label. -->
-                        <TextBlock.Style>
-                            <Style TargetType="TextBlock"><Setter Property="Foreground" Value="{StaticResource MutedBrush}"/>
-                                <Style.Triggers><DataTrigger Binding="{Binding HasUnsavedChanges}" Value="True"><Setter Property="Foreground" Value="#E3B86E"/></DataTrigger></Style.Triggers>
-                            </Style>
-                        </TextBlock.Style>
-                    </TextBlock>
-                </Border>
-            </Grid>
+            <!-- Set the Style property of TextBlock using the nested elements. -->
+            <TextBlock.Style>
+              <!-- Group property settings that can be reused by controls. Apply this description to
+                   TextBlock controls.
+              -->
+              <Style TargetType="TextBlock">
+                <!-- Supply a property setting for the surrounding style or trigger. The property being
+                     configured or tested is Foreground. Get Value from the shared resource {StaticResource
+                     MutedBrush}.
+                -->
+                <Setter Property="Foreground" Value="{StaticResource MutedBrush}" />
+                <!-- Set the Triggers property of Style using the nested elements. -->
+                <Style.Triggers>
+                  <!-- Apply the nested settings when the bound data equals the specified Value. Connect
+                       Binding to {Binding HasUnsavedChanges}. Binding reads from DataContext unless
+                       RelativeSource names a different source; TwoWay sends edits back, and
+                       PropertyChanged sends them on each change. Use True as the setting or comparison
+                       value.
+                  -->
+                  <DataTrigger Binding="{Binding HasUnsavedChanges}" Value="True">
+                    <!-- Supply a property setting for the surrounding style or trigger. The property being
+                         configured or tested is Foreground. Use #E3B86E as the setting or comparison
+                         value.
+                    -->
+                    <Setter Property="Foreground" Value="#E3B86E" />
+                  </DataTrigger>
+                </Style.Triggers>
+              </Style>
+            </TextBlock.Style>
+          </TextBlock>
         </Border>
-        <!-- Application commands: WPF calls each command's CanExecute to decide
+      </Grid>
+    </Border>
+    <!-- Application commands: WPF calls each command's CanExecute to decide
              whether its button is enabled, then Execute on a click. DockPanel
              places children against its edges; the More button docks to the right. -->
-        <Border Grid.Row="1" Background="#111823" BorderBrush="{StaticResource LineBrush}" BorderThickness="0,0,0,1" Padding="18,7">
-            <DockPanel LastChildFill="False">
-                <Button Content="Open file…" Command="{Binding OpenCommand}" ToolTip="Open binary or project (Ctrl+O)" Margin="0,0,7,0"/>
-                <Button Content="Save binary…" Command="{Binding SaveBinaryCommand}" ToolTip="Save edited bytes (Ctrl+S)" Margin="0,0,7,0"/>
-                <Button Content="Save project…" Command="{Binding SaveProjectCommand}" ToolTip="Save bytes, fields, and settings (Ctrl+Shift+S)" Margin="0,0,7,0"/>
-                <Button Content="Export text…" Command="{Binding ExportTextCommand}" ToolTip="Entire file in current format (Ctrl+E)" Margin="0,0,18,0"/>
-                <Border Width="1" Background="{StaticResource LineBrush}" Margin="0,4,14,4"/>
-                <Button Content="↶  Undo" Command="{Binding UndoCommand}" ToolTip="Ctrl+Z" Margin="0,0,6,0"/>
-                <Button Content="↷  Redo" Command="{Binding RedoCommand}" ToolTip="Ctrl+Y"/>
-                <Button DockPanel.Dock="Right" Content="More  ▾" Click="More_Click">
-                    <!-- A popup menu lives outside the normal visual tree, so it
+    <!-- Draw a background or border around a child control, with optional rounded corners and inner
+         spacing. Grid.Row=1 chooses that zero-based grid position. Use #111823 for Background; hexadecimal
+         color digits describe paint, not the open file's bytes. Get BorderBrush from the shared resource
+         {StaticResource LineBrush}. BorderThickness 0,0,0,1 sets edge widths (four numbers mean
+         left/top/right/bottom). Padding 18,7 adds inside spacing using the same one-, two-, or four-number
+         order as Margin.
+    -->
+    <Border Grid.Row="1" Background="#111823" BorderBrush="{StaticResource LineBrush}" BorderThickness="0,0,0,1" Padding="18,7">
+      <!-- Place children against the specified edges; by default the final child fills the remaining area.
+           Set LastChildFill to False; this configures that aspect of the element.
+      -->
+      <DockPanel LastChildFill="False">
+        <!-- Provide a clickable button. Use “Open file…” as the displayed content. Connect Command to
+             {Binding OpenCommand}. Binding reads from DataContext unless RelativeSource names a different
+             source; TwoWay sends edits back, and PropertyChanged sends them on each change. Show “Open
+             binary or project (Ctrl+O)” when the pointer rests over this control. Margin 0,0,7,0 adds
+             outside spacing (one number: all sides; two: horizontal/vertical; four:
+             left/top/right/bottom).
+        -->
+        <Button Content="Open file…" Command="{Binding OpenCommand}" ToolTip="Open binary or project (Ctrl+O)" Margin="0,0,7,0" />
+        <!-- Provide a clickable button. Use “Save binary…” as the displayed content. Connect Command to
+             {Binding SaveBinaryCommand}. Binding reads from DataContext unless RelativeSource names a
+             different source; TwoWay sends edits back, and PropertyChanged sends them on each change. Show
+             “Save edited bytes (Ctrl+S)” when the pointer rests over this control. Margin 0,0,7,0 adds
+             outside spacing (one number: all sides; two: horizontal/vertical; four:
+             left/top/right/bottom).
+        -->
+        <Button Content="Save binary…" Command="{Binding SaveBinaryCommand}" ToolTip="Save edited bytes (Ctrl+S)" Margin="0,0,7,0" />
+        <!-- Provide a clickable button. Use “Save project…” as the displayed content. Connect Command to
+             {Binding SaveProjectCommand}. Binding reads from DataContext unless RelativeSource names a
+             different source; TwoWay sends edits back, and PropertyChanged sends them on each change. Show
+             “Save bytes, fields, and settings (Ctrl+Shift+S)” when the pointer rests over this control.
+             Margin 0,0,7,0 adds outside spacing (one number: all sides; two: horizontal/vertical; four:
+             left/top/right/bottom).
+        -->
+        <Button Content="Save project…" Command="{Binding SaveProjectCommand}" ToolTip="Save bytes, fields, and settings (Ctrl+Shift+S)" Margin="0,0,7,0" />
+        <!-- Provide a clickable button. Use “Export text…” as the displayed content. Connect Command to
+             {Binding ExportTextCommand}. Binding reads from DataContext unless RelativeSource names a
+             different source; TwoWay sends edits back, and PropertyChanged sends them on each change. Show
+             “Entire file in current format (Ctrl+E)” when the pointer rests over this control. Margin
+             0,0,18,0 adds outside spacing (one number: all sides; two: horizontal/vertical; four:
+             left/top/right/bottom).
+        -->
+        <Button Content="Export text…" Command="{Binding ExportTextCommand}" ToolTip="Entire file in current format (Ctrl+E)" Margin="0,0,18,0" />
+        <!-- Draw a background or border around a child control, with optional rounded corners and inner
+             spacing. Width=1 requests that size in WPF layout units (independent of monitor pixel
+             density). Get Background from the shared resource {StaticResource LineBrush}. Margin 0,4,14,4
+             adds outside spacing (one number: all sides; two: horizontal/vertical; four:
+             left/top/right/bottom).
+        -->
+        <Border Width="1" Background="{StaticResource LineBrush}" Margin="0,4,14,4" />
+        <!-- Provide a clickable button. Use “↶ Undo” as the displayed content. Connect Command to {Binding
+             UndoCommand}. Binding reads from DataContext unless RelativeSource names a different source;
+             TwoWay sends edits back, and PropertyChanged sends them on each change. Show “Ctrl+Z” when the
+             pointer rests over this control. Margin 0,0,6,0 adds outside spacing (one number: all sides;
+             two: horizontal/vertical; four: left/top/right/bottom).
+        -->
+        <Button Content="↶  Undo" Command="{Binding UndoCommand}" ToolTip="Ctrl+Z" Margin="0,0,6,0" />
+        <!-- Provide a clickable button. Use “↷ Redo” as the displayed content. Connect Command to {Binding
+             RedoCommand}. Binding reads from DataContext unless RelativeSource names a different source;
+             TwoWay sends edits back, and PropertyChanged sends them on each change. Show “Ctrl+Y” when the
+             pointer rests over this control.
+        -->
+        <Button Content="↷  Redo" Command="{Binding RedoCommand}" ToolTip="Ctrl+Y" />
+        <!-- Provide a clickable button. Dock this child against the Right edge of its DockPanel. Use “More
+             ▾” as the displayed content. When Click occurs, run the C# handler More_Click.
+        -->
+        <Button DockPanel.Dock="Right" Content="More  ▾" Click="More_Click">
+          <!-- A popup menu lives outside the normal visual tree, so it
                          cannot simply inherit this window's DataContext. Read it
                          explicitly from PlacementTarget, the button that opened it.
                          InputGestureText displays a hint; keyboard routing is C#. -->
-                    <Button.ContextMenu>
-                        <ContextMenu DataContext="{Binding PlacementTarget.DataContext, RelativeSource={RelativeSource Self}}">
-                            <MenuItem Header="Go to offset…" InputGestureText="Ctrl+G" Command="{Binding GoToOffsetCommand}"/>
-                            <MenuItem Header="Copy selection" InputGestureText="Ctrl+C" Command="{Binding CopyCommand}"/>
-                            <Separator/>
-                            <MenuItem Header="New from hex…" Command="{Binding NewFromHexCommand}"/>
-                            <MenuItem Header="Load example packet" Command="{Binding ExampleCommand}"/>
-                            <Separator/>
-                            <MenuItem Header="Import field template…" Command="{Binding ImportFieldsCommand}"/>
-                            <MenuItem Header="Export field template…" Command="{Binding ExportFieldsCommand}"/>
-                            <Separator/>
-                            <MenuItem Header="Help &amp; shortcuts" Command="{Binding HelpCommand}"/>
-                        </ContextMenu>
-                    </Button.ContextMenu>
-                </Button>
-            </DockPanel>
-        </Border>
-        <!-- Display controls read the nested Display view model. Two-way selector
+          <!-- Set the ContextMenu property of Button using the nested elements. -->
+          <Button.ContextMenu>
+            <!-- Describe a popup menu of actions. Connect DataContext to {Binding
+                 PlacementTarget.DataContext, RelativeSource={RelativeSource Self}}. Binding reads from
+                 DataContext unless RelativeSource names a different source; TwoWay sends edits back, and
+                 PropertyChanged sends them on each change.
+            -->
+            <ContextMenu DataContext="{Binding PlacementTarget.DataContext, RelativeSource={RelativeSource Self}}">
+              <!-- Provide one action or submenu in the menu. Label the entry “Go to offset…”. Display
+                   Ctrl+G as a shortcut hint; this text alone does not implement the shortcut. Connect
+                   Command to {Binding GoToOffsetCommand}. Binding reads from DataContext unless
+                   RelativeSource names a different source; TwoWay sends edits back, and PropertyChanged
+                   sends them on each change.
+              -->
+              <MenuItem Header="Go to offset…" InputGestureText="Ctrl+G" Command="{Binding GoToOffsetCommand}" />
+              <!-- Provide one action or submenu in the menu. Label the entry “Copy selection”. Display
+                   Ctrl+C as a shortcut hint; this text alone does not implement the shortcut. Connect
+                   Command to {Binding CopyCommand}. Binding reads from DataContext unless RelativeSource
+                   names a different source; TwoWay sends edits back, and PropertyChanged sends them on
+                   each change.
+              -->
+              <MenuItem Header="Copy selection" InputGestureText="Ctrl+C" Command="{Binding CopyCommand}" />
+              <!-- Separate neighboring menu entries with a visual dividing line. -->
+              <Separator />
+              <!-- Provide one action or submenu in the menu. Label the entry “New from hex…”. Connect
+                   Command to {Binding NewFromHexCommand}. Binding reads from DataContext unless
+                   RelativeSource names a different source; TwoWay sends edits back, and PropertyChanged
+                   sends them on each change.
+              -->
+              <MenuItem Header="New from hex…" Command="{Binding NewFromHexCommand}" />
+              <!-- Provide one action or submenu in the menu. Label the entry “Load example packet”.
+                   Connect Command to {Binding ExampleCommand}. Binding reads from DataContext unless
+                   RelativeSource names a different source; TwoWay sends edits back, and PropertyChanged
+                   sends them on each change.
+              -->
+              <MenuItem Header="Load example packet" Command="{Binding ExampleCommand}" />
+              <!-- Separate neighboring menu entries with a visual dividing line. -->
+              <Separator />
+              <!-- Provide one action or submenu in the menu. Label the entry “Import field template…”.
+                   Connect Command to {Binding ImportFieldsCommand}. Binding reads from DataContext unless
+                   RelativeSource names a different source; TwoWay sends edits back, and PropertyChanged
+                   sends them on each change.
+              -->
+              <MenuItem Header="Import field template…" Command="{Binding ImportFieldsCommand}" />
+              <!-- Provide one action or submenu in the menu. Label the entry “Export field template…”.
+                   Connect Command to {Binding ExportFieldsCommand}. Binding reads from DataContext unless
+                   RelativeSource names a different source; TwoWay sends edits back, and PropertyChanged
+                   sends them on each change.
+              -->
+              <MenuItem Header="Export field template…" Command="{Binding ExportFieldsCommand}" />
+              <!-- Separate neighboring menu entries with a visual dividing line. -->
+              <Separator />
+              <!-- Provide one action or submenu in the menu. Label the entry “Help & shortcuts”. Connect
+                   Command to {Binding HelpCommand}. Binding reads from DataContext unless RelativeSource
+                   names a different source; TwoWay sends edits back, and PropertyChanged sends them on
+                   each change.
+              -->
+              <MenuItem Header="Help &amp; shortcuts" Command="{Binding HelpCommand}" />
+            </ContextMenu>
+          </Button.ContextMenu>
+        </Button>
+      </DockPanel>
+    </Border>
+    <!-- Display controls read the nested Display view model. Two-way selector
              properties send a user's choice back to it. Byte/bit buttons inherit
              the shared button style, then add an active-mode color trigger. -->
-        <Border Grid.Row="2" BorderBrush="{StaticResource LineBrush}" BorderThickness="0,0,0,1" Padding="18,9">
-            <DockPanel LastChildFill="False">
-                <StackPanel Orientation="Horizontal">
-                    <Button Content="Bytes" Command="{Binding Display.SetBytesViewCommand}" Padding="15,5">
-                        <Button.Style><Style TargetType="Button" BasedOn="{StaticResource {x:Type Button}}">
-                            <Style.Triggers><DataTrigger Binding="{Binding Display.IsBytesView}" Value="True">
-                                <Setter Property="Background" Value="#204844"/><Setter Property="BorderBrush" Value="#3C9182"/><Setter Property="Foreground" Value="#91F0DF"/>
-                            </DataTrigger></Style.Triggers>
-                        </Style></Button.Style>
-                    </Button>
-                    <Button Content="Bits" Command="{Binding Display.SetBitsViewCommand}" Padding="15,5" Margin="4,0,20,0">
-                        <Button.Style><Style TargetType="Button" BasedOn="{StaticResource {x:Type Button}}">
-                            <Style.Triggers><DataTrigger Binding="{Binding Display.IsBitsView}" Value="True">
-                                <Setter Property="Background" Value="#204844"/><Setter Property="BorderBrush" Value="#3C9182"/><Setter Property="Foreground" Value="#91F0DF"/>
-                            </DataTrigger></Style.Triggers>
-                        </Style></Button.Style>
-                    </Button>
-                    <TextBlock Text="VALUES" Style="{StaticResource SmallLabel}" VerticalAlignment="Center" Margin="0,0,8,0"/>
-                    <ComboBox x:Name="BaseCombo" Width="112" SelectedIndex="{Binding Display.ByteBaseIndex}">
-                        <ComboBoxItem Content="Hexadecimal"/><ComboBoxItem Content="Decimal"/>
-                    </ComboBox>
-                    <TextBlock Text="BYTES / ROW" Style="{StaticResource SmallLabel}" VerticalAlignment="Center" Margin="18,0,8,0"/>
-                    <!-- ItemsSource supplies the list; SelectedItem is the chosen
+    <!-- Draw a background or border around a child control, with optional rounded corners and inner
+         spacing. Grid.Row=2 chooses that zero-based grid position. Get BorderBrush from the shared
+         resource {StaticResource LineBrush}. BorderThickness 0,0,0,1 sets edge widths (four numbers mean
+         left/top/right/bottom). Padding 18,9 adds inside spacing using the same one-, two-, or four-number
+         order as Margin.
+    -->
+    <Border Grid.Row="2" BorderBrush="{StaticResource LineBrush}" BorderThickness="0,0,0,1" Padding="18,9">
+      <!-- Place children against the specified edges; by default the final child fills the remaining area.
+           Set LastChildFill to False; this configures that aspect of the element.
+      -->
+      <DockPanel LastChildFill="False">
+        <!-- Place child controls one after another; the default direction is vertical. Arrange or move
+             along the horizontal direction.
+        -->
+        <StackPanel Orientation="Horizontal">
+          <!-- Provide a clickable button. Use “Bytes” as the displayed content. Connect Command to
+               {Binding Display.SetBytesViewCommand}. Binding reads from DataContext unless RelativeSource
+               names a different source; TwoWay sends edits back, and PropertyChanged sends them on each
+               change. Padding 15,5 adds inside spacing using the same one-, two-, or four-number order as
+               Margin.
+          -->
+          <Button Content="Bytes" Command="{Binding Display.SetBytesViewCommand}" Padding="15,5">
+            <!-- Set the Style property of Button using the nested elements. -->
+            <Button.Style>
+              <!-- Group property settings that can be reused by controls. Apply this description to Button
+                   controls. Get BasedOn from the shared resource {StaticResource {x:Type Button}}.
+              -->
+              <Style TargetType="Button" BasedOn="{StaticResource {x:Type Button}}">
+                <!-- Set the Triggers property of Style using the nested elements. -->
+                <Style.Triggers>
+                  <!-- Apply the nested settings when the bound data equals the specified Value. Connect
+                       Binding to {Binding Display.IsBytesView}. Binding reads from DataContext unless
+                       RelativeSource names a different source; TwoWay sends edits back, and
+                       PropertyChanged sends them on each change. Use True as the setting or comparison
+                       value.
+                  -->
+                  <DataTrigger Binding="{Binding Display.IsBytesView}" Value="True">
+                    <!-- Supply a property setting for the surrounding style or trigger. The property being
+                         configured or tested is Background. Use #204844 as the setting or comparison
+                         value.
+                    -->
+                    <Setter Property="Background" Value="#204844" />
+                    <!-- Supply a property setting for the surrounding style or trigger. The property being
+                         configured or tested is BorderBrush. Use #3C9182 as the setting or comparison
+                         value.
+                    -->
+                    <Setter Property="BorderBrush" Value="#3C9182" />
+                    <!-- Supply a property setting for the surrounding style or trigger. The property being
+                         configured or tested is Foreground. Use #91F0DF as the setting or comparison
+                         value.
+                    -->
+                    <Setter Property="Foreground" Value="#91F0DF" />
+                  </DataTrigger>
+                </Style.Triggers>
+              </Style>
+            </Button.Style>
+          </Button>
+          <!-- Provide a clickable button. Use “Bits” as the displayed content. Connect Command to {Binding
+               Display.SetBitsViewCommand}. Binding reads from DataContext unless RelativeSource names a
+               different source; TwoWay sends edits back, and PropertyChanged sends them on each change.
+               Padding 15,5 adds inside spacing using the same one-, two-, or four-number order as Margin.
+               Margin 4,0,20,0 adds outside spacing (one number: all sides; two: horizontal/vertical; four:
+               left/top/right/bottom).
+          -->
+          <Button Content="Bits" Command="{Binding Display.SetBitsViewCommand}" Padding="15,5" Margin="4,0,20,0">
+            <!-- Set the Style property of Button using the nested elements. -->
+            <Button.Style>
+              <!-- Group property settings that can be reused by controls. Apply this description to Button
+                   controls. Get BasedOn from the shared resource {StaticResource {x:Type Button}}.
+              -->
+              <Style TargetType="Button" BasedOn="{StaticResource {x:Type Button}}">
+                <!-- Set the Triggers property of Style using the nested elements. -->
+                <Style.Triggers>
+                  <!-- Apply the nested settings when the bound data equals the specified Value. Connect
+                       Binding to {Binding Display.IsBitsView}. Binding reads from DataContext unless
+                       RelativeSource names a different source; TwoWay sends edits back, and
+                       PropertyChanged sends them on each change. Use True as the setting or comparison
+                       value.
+                  -->
+                  <DataTrigger Binding="{Binding Display.IsBitsView}" Value="True">
+                    <!-- Supply a property setting for the surrounding style or trigger. The property being
+                         configured or tested is Background. Use #204844 as the setting or comparison
+                         value.
+                    -->
+                    <Setter Property="Background" Value="#204844" />
+                    <!-- Supply a property setting for the surrounding style or trigger. The property being
+                         configured or tested is BorderBrush. Use #3C9182 as the setting or comparison
+                         value.
+                    -->
+                    <Setter Property="BorderBrush" Value="#3C9182" />
+                    <!-- Supply a property setting for the surrounding style or trigger. The property being
+                         configured or tested is Foreground. Use #91F0DF as the setting or comparison
+                         value.
+                    -->
+                    <Setter Property="Foreground" Value="#91F0DF" />
+                  </DataTrigger>
+                </Style.Triggers>
+              </Style>
+            </Button.Style>
+          </Button>
+          <!-- Display text that the user cannot directly edit. Show the text “VALUES”. Get Style from the
+               shared resource {StaticResource SmallLabel}. VerticalAlignment=Center positions the element
+               or its contents along that axis. Margin 0,0,8,0 adds outside spacing (one number: all sides;
+               two: horizontal/vertical; four: left/top/right/bottom).
+          -->
+          <TextBlock Text="VALUES" Style="{StaticResource SmallLabel}" VerticalAlignment="Center" Margin="0,0,8,0" />
+          <!-- Provide a dropdown list of choices. x:Name makes this element identifiable as BaseCombo.
+               Width=112 requests that size in WPF layout units (independent of monitor pixel density).
+               Connect SelectedIndex to {Binding Display.ByteBaseIndex}. Binding reads from DataContext
+               unless RelativeSource names a different source; TwoWay sends edits back, and PropertyChanged
+               sends them on each change.
+          -->
+          <ComboBox x:Name="BaseCombo" Width="112" SelectedIndex="{Binding Display.ByteBaseIndex}">
+            <!-- Supply one choice for the surrounding dropdown list. Use “Hexadecimal” as the displayed
+                 content.
+            -->
+            <ComboBoxItem Content="Hexadecimal" />
+            <!-- Supply one choice for the surrounding dropdown list. Use “Decimal” as the displayed
+                 content.
+            -->
+            <ComboBoxItem Content="Decimal" />
+          </ComboBox>
+          <!-- Display text that the user cannot directly edit. Show the text “BYTES / ROW”. Get Style from
+               the shared resource {StaticResource SmallLabel}. VerticalAlignment=Center positions the
+               element or its contents along that axis. Margin 18,0,8,0 adds outside spacing (one number:
+               all sides; two: horizontal/vertical; four: left/top/right/bottom).
+          -->
+          <TextBlock Text="BYTES / ROW" Style="{StaticResource SmallLabel}" VerticalAlignment="Center" Margin="18,0,8,0" />
+          <!-- ItemsSource supplies the list; SelectedItem is the chosen
                          number. Fit mode disables manual row-size selection. -->
-                    <ComboBox Width="64" ItemsSource="{Binding Display.RowSizes}" SelectedItem="{Binding Display.BytesPerRow}" IsEnabled="{Binding Display.CanSetBytesPerRow}"/>
-                    <CheckBox Content="Fit column" IsChecked="{Binding Display.AutoBytesPerRow}" VerticalAlignment="Center" Margin="12,0,0,0" ToolTip="Adapt bytes per row when the data column is resized"/>
-                </StackPanel>
-                <Button DockPanel.Dock="Right" Content="Display options" Click="DisplayOptions_Click"/>
-            </DockPanel>
-        </Border>
-        <!-- Three functional panels separated by narrow draggable GridSplitters.
+          <!-- Provide a dropdown list of choices. Width=64 requests that size in WPF layout units
+               (independent of monitor pixel density). Connect ItemsSource to {Binding Display.RowSizes}.
+               Binding reads from DataContext unless RelativeSource names a different source; TwoWay sends
+               edits back, and PropertyChanged sends them on each change. Connect SelectedItem to {Binding
+               Display.BytesPerRow}. Binding reads from DataContext unless RelativeSource names a different
+               source; TwoWay sends edits back, and PropertyChanged sends them on each change. Connect
+               IsEnabled to {Binding Display.CanSetBytesPerRow}. Binding reads from DataContext unless
+               RelativeSource names a different source; TwoWay sends edits back, and PropertyChanged sends
+               them on each change.
+          -->
+          <ComboBox Width="64" ItemsSource="{Binding Display.RowSizes}" SelectedItem="{Binding Display.BytesPerRow}" IsEnabled="{Binding Display.CanSetBytesPerRow}" />
+          <!-- Provide a checked/unchecked choice. Use “Fit column” as the displayed content. Connect
+               IsChecked to {Binding Display.AutoBytesPerRow}. Binding reads from DataContext unless
+               RelativeSource names a different source; TwoWay sends edits back, and PropertyChanged sends
+               them on each change. VerticalAlignment=Center positions the element or its contents along
+               that axis. Margin 12,0,0,0 adds outside spacing (one number: all sides; two:
+               horizontal/vertical; four: left/top/right/bottom). Show “Adapt bytes per row when the data
+               column is resized” when the pointer rests over this control.
+          -->
+          <CheckBox Content="Fit column" IsChecked="{Binding Display.AutoBytesPerRow}" VerticalAlignment="Center" Margin="12,0,0,0" ToolTip="Adapt bytes per row when the data column is resized" />
+        </StackPanel>
+        <!-- Provide a clickable button. Dock this child against the Right edge of its DockPanel. Use
+             “Display options” as the displayed content. When Click occurs, run the C# handler
+             DisplayOptions_Click.
+        -->
+        <Button DockPanel.Dock="Right" Content="Display options" Click="DisplayOptions_Click" />
+      </DockPanel>
+    </Border>
+    <!-- Three functional panels separated by narrow draggable GridSplitters.
              These splitters size whole panels; the custom grid independently owns
              the offset/data/ASCII column widths inside the middle panel. -->
-        <Grid Grid.Row="3">
-            <Grid.ColumnDefinitions>
-                <ColumnDefinition Width="222" MinWidth="170" MaxWidth="400"/><ColumnDefinition Width="5"/>
-                <ColumnDefinition Width="*" MinWidth="300"/><ColumnDefinition Width="5"/>
-                <ColumnDefinition Width="326" MinWidth="300" MaxWidth="550"/>
-            </Grid.ColumnDefinitions>
-            <!-- Replace the inherited context at the panel boundary: bindings
+    <!-- Arrange child controls in rows and columns; unspecified row or column numbers are zero. Grid.Row=3
+         chooses that zero-based grid position.
+    -->
+    <Grid Grid.Row="3">
+      <!-- Set the ColumnDefinitions property of Grid using the nested elements. -->
+      <Grid.ColumnDefinitions>
+        <!-- Define one column; columns are numbered from zero in their written order. Width=222 requests
+             that size in WPF layout units (independent of monitor pixel density). MinWidth=170 limits the
+             allowed layout size. MaxWidth=400 limits the allowed layout size.
+        -->
+        <ColumnDefinition Width="222" MinWidth="170" MaxWidth="400" />
+        <!-- Define one column; columns are numbered from zero in their written order. Width=5 requests
+             that size in WPF layout units (independent of monitor pixel density).
+        -->
+        <ColumnDefinition Width="5" />
+        <!-- Define one column; columns are numbered from zero in their written order. Width=* takes a
+             weighted share of the available space. MinWidth=300 limits the allowed layout size.
+        -->
+        <ColumnDefinition Width="*" MinWidth="300" />
+        <!-- Define one column; columns are numbered from zero in their written order. Width=5 requests
+             that size in WPF layout units (independent of monitor pixel density).
+        -->
+        <ColumnDefinition Width="5" />
+        <!-- Define one column; columns are numbered from zero in their written order. Width=326 requests
+             that size in WPF layout units (independent of monitor pixel density). MinWidth=300 limits the
+             allowed layout size. MaxWidth=550 limits the allowed layout size.
+        -->
+        <ColumnDefinition Width="326" MinWidth="300" MaxWidth="550" />
+      </Grid.ColumnDefinitions>
+      <!-- Replace the inherited context at the panel boundary: bindings
                  inside FieldsView now refer to FieldsViewModel properties directly. -->
-            <views:FieldsView DataContext="{Binding Fields}"/>
-            <GridSplitter Grid.Column="1" HorizontalAlignment="Stretch" Background="#202B39"/>
-            <Grid Grid.Column="2">
-                <Grid.RowDefinitions><RowDefinition Height="*"/><RowDefinition Height="Auto"/></Grid.RowDefinitions>
-                <!-- CanContentScroll delegates scrolling to ByteGrid's IScrollInfo
+      <!-- Place the named-field list panel here. Connect DataContext to {Binding Fields}. Binding reads
+           from DataContext unless RelativeSource names a different source; TwoWay sends edits back, and
+           PropertyChanged sends them on each change.
+      -->
+      <views:FieldsView DataContext="{Binding Fields}" />
+      <!-- Provide a draggable divider for resizing the neighboring grid columns or rows. Grid.Column=1
+           chooses that zero-based grid position. HorizontalAlignment=Stretch positions the element or its
+           contents along that axis. Use #202B39 for Background; hexadecimal color digits describe paint,
+           not the open file's bytes.
+      -->
+      <GridSplitter Grid.Column="1" HorizontalAlignment="Stretch" Background="#202B39" />
+      <!-- Arrange child controls in rows and columns; unspecified row or column numbers are zero.
+           Grid.Column=2 chooses that zero-based grid position.
+      -->
+      <Grid Grid.Column="2">
+        <!-- Set the RowDefinitions property of Grid using the nested elements. -->
+        <Grid.RowDefinitions>
+          <!-- Define one row; rows are numbered from zero in their written order. Height=* takes a
+               weighted share of the available space.
+          -->
+          <RowDefinition Height="*" />
+          <!-- Define one row; rows are numbered from zero in their written order. Height=Auto sizes to the
+               content.
+          -->
+          <RowDefinition Height="Auto" />
+        </Grid.RowDefinitions>
+        <!-- CanContentScroll delegates scrolling to ByteGrid's IScrollInfo
                      implementation. It draws visible rows itself instead of creating
                      thousands of row controls. The small events here are UI requests;
                      document/selection are wired as shared objects in code-behind. -->
-                <ScrollViewer CanContentScroll="True" HorizontalScrollBarVisibility="Auto" VerticalScrollBarVisibility="Auto" Focusable="False">
-                    <grid:ByteGrid x:Name="DataGrid" EditRequested="Grid_EditRequested" LayoutSettingsChanged="Grid_LayoutSettingsChanged"/>
-                </ScrollViewer>
-                <Border Grid.Row="1" BorderBrush="{StaticResource LineBrush}" BorderThickness="0,1,0,0" Padding="13,9" Background="#141C27">
-                    <TextBlock Text="Click to inspect · Shift to extend · Ctrl to combine · Double-click to edit" Foreground="{StaticResource MutedBrush}" FontSize="11" TextWrapping="Wrap"/>
-                </Border>
-            </Grid>
-            <GridSplitter Grid.Column="3" HorizontalAlignment="Stretch" Background="#202B39"/>
-            <views:InspectorView x:Name="InspectorPanel" Grid.Column="4" DataContext="{Binding Inspector}"/>
-        </Grid>
-        <!-- Status combines the most recent operation message with the active format. -->
-        <Border Grid.Row="4" Background="#16212D" BorderBrush="{StaticResource LineBrush}" BorderThickness="0,1,0,0" Padding="16,0">
-            <DockPanel>
-                <TextBlock Text="{Binding Status}" VerticalAlignment="Center" FontSize="11" Foreground="{StaticResource MutedBrush}" TextTrimming="CharacterEllipsis"/>
-                <TextBlock Text="{Binding Display.FormatStatus}" DockPanel.Dock="Right" HorizontalAlignment="Right" VerticalAlignment="Center" FontSize="11" Foreground="{StaticResource AccentBrush}"/>
-            </DockPanel>
+        <!-- Show content through a scrollable viewing area. Set CanContentScroll to True; this configures
+             that aspect of the element. Set HorizontalScrollBarVisibility to Auto; this configures that
+             aspect of the element. Set VerticalScrollBarVisibility to Auto; this configures that aspect of
+             the element. Focusable=False controls whether this element can receive keyboard focus.
+        -->
+        <ScrollViewer CanContentScroll="True" HorizontalScrollBarVisibility="Auto" VerticalScrollBarVisibility="Auto" Focusable="False">
+          <!-- Place our custom byte/bit drawing and input control here. x:Name makes this element
+               identifiable as DataGrid. When EditRequested occurs, run the C# handler Grid_EditRequested.
+               When LayoutSettingsChanged occurs, run the C# handler Grid_LayoutSettingsChanged.
+          -->
+          <grid:ByteGrid x:Name="DataGrid" EditRequested="Grid_EditRequested" LayoutSettingsChanged="Grid_LayoutSettingsChanged" />
+        </ScrollViewer>
+        <!-- Draw a background or border around a child control, with optional rounded corners and inner
+             spacing. Grid.Row=1 chooses that zero-based grid position. Get BorderBrush from the shared
+             resource {StaticResource LineBrush}. BorderThickness 0,1,0,0 sets edge widths (four numbers
+             mean left/top/right/bottom). Padding 13,9 adds inside spacing using the same one-, two-, or
+             four-number order as Margin. Use #141C27 for Background; hexadecimal color digits describe
+             paint, not the open file's bytes.
+        -->
+        <Border Grid.Row="1" BorderBrush="{StaticResource LineBrush}" BorderThickness="0,1,0,0" Padding="13,9" Background="#141C27">
+          <!-- Display text that the user cannot directly edit. Show the text “Click to inspect · Shift to
+               extend · Ctrl to combine · Double-click to edit”. Get Foreground from the shared resource
+               {StaticResource MutedBrush}. Draw characters at font size 11. TextWrapping=Wrap controls
+               whether long text continues on another line.
+          -->
+          <TextBlock Text="Click to inspect · Shift to extend · Ctrl to combine · Double-click to edit" Foreground="{StaticResource MutedBrush}" FontSize="11" TextWrapping="Wrap" />
         </Border>
+      </Grid>
+      <!-- Provide a draggable divider for resizing the neighboring grid columns or rows. Grid.Column=3
+           chooses that zero-based grid position. HorizontalAlignment=Stretch positions the element or its
+           contents along that axis. Use #202B39 for Background; hexadecimal color digits describe paint,
+           not the open file's bytes.
+      -->
+      <GridSplitter Grid.Column="3" HorizontalAlignment="Stretch" Background="#202B39" />
+      <!-- Place the byte, bit, and field inspector panel here. x:Name makes this element identifiable as
+           InspectorPanel. Grid.Column=4 chooses that zero-based grid position. Connect DataContext to
+           {Binding Inspector}. Binding reads from DataContext unless RelativeSource names a different
+           source; TwoWay sends edits back, and PropertyChanged sends them on each change.
+      -->
+      <views:InspectorView x:Name="InspectorPanel" Grid.Column="4" DataContext="{Binding Inspector}" />
     </Grid>
+    <!-- Status combines the most recent operation message with the active format. -->
+    <!-- Draw a background or border around a child control, with optional rounded corners and inner
+         spacing. Grid.Row=4 chooses that zero-based grid position. Use #16212D for Background; hexadecimal
+         color digits describe paint, not the open file's bytes. Get BorderBrush from the shared resource
+         {StaticResource LineBrush}. BorderThickness 0,1,0,0 sets edge widths (four numbers mean
+         left/top/right/bottom). Padding 16,0 adds inside spacing using the same one-, two-, or four-number
+         order as Margin.
+    -->
+    <Border Grid.Row="4" Background="#16212D" BorderBrush="{StaticResource LineBrush}" BorderThickness="0,1,0,0" Padding="16,0">
+      <!-- Place children against the specified edges; by default the final child fills the remaining area. -->
+      <DockPanel>
+        <!-- Display text that the user cannot directly edit. Connect Text to {Binding Status}. Binding
+             reads from DataContext unless RelativeSource names a different source; TwoWay sends edits
+             back, and PropertyChanged sends them on each change. VerticalAlignment=Center positions the
+             element or its contents along that axis. Draw characters at font size 11. Get Foreground from
+             the shared resource {StaticResource MutedBrush}. TextTrimming=CharacterEllipsis specifies how
+             text that cannot fit is shortened.
+        -->
+        <TextBlock Text="{Binding Status}" VerticalAlignment="Center" FontSize="11" Foreground="{StaticResource MutedBrush}" TextTrimming="CharacterEllipsis" />
+        <!-- Display text that the user cannot directly edit. Connect Text to {Binding
+             Display.FormatStatus}. Binding reads from DataContext unless RelativeSource names a different
+             source; TwoWay sends edits back, and PropertyChanged sends them on each change. Dock this
+             child against the Right edge of its DockPanel. HorizontalAlignment=Right positions the element
+             or its contents along that axis. VerticalAlignment=Center positions the element or its
+             contents along that axis. Draw characters at font size 11. Get Foreground from the shared
+             resource {StaticResource AccentBrush}.
+        -->
+        <TextBlock Text="{Binding Display.FormatStatus}" DockPanel.Dock="Right" HorizontalAlignment="Right" VerticalAlignment="Center" FontSize="11" Foreground="{StaticResource AccentBrush}" />
+      </DockPanel>
+    </Border>
+  </Grid>
 </Window>

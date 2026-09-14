@@ -64,7 +64,7 @@ The core checks cover field interpretation, preservation of neighboring bits, un
 
 ## Code organization
 
-New to programming or WPF? Start with [Reading the code](docs/ReadingTheCode.md), which explains the vocabulary and follows selection, editing, undo, rendering, and file operations through the application. The C#, XAML, and test files also include explanations beside the implementation.
+Never programmed before? Start with [Reading the code](docs/ReadingTheCode.md). It begins with names, values, decisions, and the difference between defining an operation and running it, then follows selection, editing, undo, rendering, and file operations through the application. The C#, XAML, project files, and tests contain instruction-level explanations. Comments cover each meaningful instruction or its clearly introduced block; punctuation and continuation lines belong to that same explanation.
 
 The desktop UI uses composed MVVM: each panel has its own view and view model, and all panels share one exploration session.
 

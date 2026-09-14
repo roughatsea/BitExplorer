@@ -1,16 +1,36 @@
+<!-- READING THIS FILE
+     Markup describes a tree. <Name ...> begins an element; </Name> ends it.
+     <Name ... /> is a complete element with no children. Nested elements belong
+     to their surrounding element. Attributes such as Width="100" set properties.
+     Comments cover the next element and its attributes; closing tags finish that
+     same explanation. Indentation shows nesting and does not create behavior.
+     See docs/ReadingTheCode.md for a worked example and the project map. -->
+<!-- Describe one buildable project and the tools used to compile it. Use Microsoft.NET.Sdk for the
+     standard build rules.
+-->
 <Project Sdk="Microsoft.NET.Sdk">
   <!-- A console executable prints PASS/FAIL lines. WPF support lets tests
        construct the real compiled controls in memory without showing windows. -->
+  <!-- Group named build settings; each child gives a setting its value. -->
   <PropertyGroup>
+    <!-- Produce an executable program that can run as a console test harness. -->
     <OutputType>Exe</OutputType>
+    <!-- Compile against net10.0-windows; this selects the available .NET APIs and, with -windows, the
+         Windows target.
+    -->
     <TargetFramework>net10.0-windows</TargetFramework>
+    <!-- Enable WPF desktop support, including compiling the XAML files. -->
     <UseWPF>true</UseWPF>
+    <!-- Make common C# namespaces available automatically in this project. -->
     <ImplicitUsings>enable</ImplicitUsings>
+    <!-- Enable compiler checks for references that could be null (missing). -->
     <Nullable>enable</Nullable>
   </PropertyGroup>
   <!-- Build the application first and make its classes available to the tests.
        No external testing package is required. -->
+  <!-- Group files or project references used by the build. -->
   <ItemGroup>
+    <!-- Build and use the code from the referenced project. Include ../WpfApp1.csproj. -->
     <ProjectReference Include="../WpfApp1.csproj" />
   </ItemGroup>
 </Project>

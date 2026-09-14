@@ -1,13 +1,45 @@
+// READING THIS FILE
+// A program is a set of instructions. This file defines some of those instructions;
+// defining a method does not run it. A call such as Refresh() asks it to run.
+// Comments explain the next instruction or the whole block introduced below them.
+// Within a running block, instructions normally run from top to bottom. Braces { }
+// group a body; a closing brace ends that group. Blank lines only separate ideas.
+// A semicolon ends an instruction. A long instruction can continue on several lines;
+// its commas, closing parentheses and braces belong to the explanation at its start.
+// Names identify values or operations: x = y stores y in x; x == y compares them.
+// A dot selects something belonging to an object, and (...) supplies inputs to a call.
+// See docs/ReadingTheCode.md for types, symbols, examples, and the application map.
+
+// Make names from System.ComponentModel available here without writing their full prefix each time. This
+// does not run that library's code.
 using System.ComponentModel;
+// Make names from System.IO available here without writing their full prefix each time. This does not run
+// that library's code.
 using System.IO;
+// Make names from System.Windows available here without writing their full prefix each time. This does not
+// run that library's code.
 using System.Windows;
+// Make names from System.Windows.Controls available here without writing their full prefix each time. This
+// does not run that library's code.
 using System.Windows.Controls;
+// Make names from System.Windows.Controls.Primitives available here without writing their full prefix each
+// time. This does not run that library's code.
 using System.Windows.Controls.Primitives;
+// Make names from System.Windows.Input available here without writing their full prefix each time. This
+// does not run that library's code.
 using System.Windows.Input;
+// Make names from WpfApp1.Controls available here without writing their full prefix each time. This does
+// not run that library's code.
 using WpfApp1.Controls;
+// Make names from WpfApp1.Services available here without writing their full prefix each time. This does
+// not run that library's code.
 using WpfApp1.Services;
+// Make names from WpfApp1.ViewModels available here without writing their full prefix each time. This does
+// not run that library's code.
 using WpfApp1.ViewModels;
 
+// Place this file's definitions in the WpfApp1 naming group, which prevents clashes with names in other
+// groups.
 namespace WpfApp1;
 
 /// <summary>
@@ -40,21 +72,31 @@ public partial class MainWindow : Window
         InitializeComponent();
         // WorkArea excludes the taskbar; do not start larger than the usable desktop.
         Width = Math.Min(1540, SystemParameters.WorkArea.Width);
+        // Set Height to the smaller of the two supplied numbers.
         Height = Math.Min(960, SystemParameters.WorkArea.Height);
         // ?? selects the supplied object when present, otherwise constructs one.
         // DataContext is the starting object for {Binding ...} expressions in XAML.
         _viewModel = viewModel ?? new MainWindowViewModel(new WpfUserInteractionService(this));
+        // Set DataContext to _viewModel.
         DataContext = _viewModel;
         // Assign the document first: doing so resets the grid's old selection.
         // Then attach the session's selection object, shared with every inspector.
         DataGrid.Document = _viewModel.Session.Document;
+        // Set DataGrid.Selection to _viewModel.Session.Selection.
         DataGrid.Selection = _viewModel.Session.Selection;
         // += subscribes methods to events (notifications). The session remains the
         // source of truth; these handlers update control wiring or scroll position.
         _viewModel.Session.DocumentReplaced += DocumentReplaced;
+        // Register SelectionChanged as a listener for _viewModel.Session.Selection.Changed; the listener
+        // runs when that event is raised.
         _viewModel.Session.Selection.Changed += SelectionChanged;
+        // Register ViewModelPropertyChanged as a listener for _viewModel.PropertyChanged; the listener runs
+        // when that event is raised.
         _viewModel.PropertyChanged += ViewModelPropertyChanged;
+        // Register GridFocusRequested as a listener for _viewModel.GridFocusRequested; the listener runs
+        // when that event is raised.
         _viewModel.GridFocusRequested += GridFocusRequested;
+        // Register Window_Closed as a listener for Closed; the listener runs when that event is raised.
         Closed += Window_Closed;
         // A test's own command-line arguments must never be treated as file paths.
         if (viewModel is null) Loaded += OpenCommandLineFile;
@@ -66,6 +108,8 @@ public partial class MainWindow : Window
         // Unsubscribe so a later Loaded event cannot reopen the file. The first
         // command-line argument is the executable's name, hence Skip(1).
         Loaded -= OpenCommandLineFile;
+        // Remember the first matching item, or the type's default (usually null here) when none matches as
+        // path.
         var path = Environment.GetCommandLineArgs().Skip(1).FirstOrDefault();
         // Startup has only the untouched example packet, so there is nothing to
         // ask the user to save. Await waits for completion without blocking the UI.
@@ -91,6 +135,7 @@ public partial class MainWindow : Window
         // A null property name means "all properties may have changed."
         // A null Cursor removes our override and restores WPF's normal cursor behavior.
         if (e.PropertyName is null or nameof(MainWindowViewModel.IsBusy))
+            // Set Cursor to Cursors.Wait when _viewModel.IsBusy is true; otherwise null (no value).
             Cursor = _viewModel.IsBusy ? Cursors.Wait : null;
     }
 
@@ -100,8 +145,11 @@ public partial class MainWindow : Window
         // This pattern checks the sender's type and extracts a non-null menu at
         // the same time. PlacementTarget also supplies the menu's binding context.
         if (sender is not Button { ContextMenu: { } menu } button) return;
+        // Set menu.PlacementTarget to button.
         menu.PlacementTarget = button;
+        // Set menu.Placement to PlacementMode.Bottom.
         menu.Placement = PlacementMode.Bottom;
+        // Set menu.IsOpen to true (yes).
         menu.IsOpen = true;
     }
 
@@ -111,42 +159,68 @@ public partial class MainWindow : Window
     /// </summary>
     private void Window_PreviewKeyDown(object sender, KeyEventArgs e)
     {
+        // Remember the result returned by Keyboard.Modifiers.HasFlag(...) as control.
         bool control = Keyboard.Modifiers.HasFlag(ModifierKeys.Control);
+        // Remember the result returned by Keyboard.Modifiers.HasFlag(...) as shift.
         bool shift = Keyboard.Modifiers.HasFlag(ModifierKeys.Shift);
+        // Remember Keyboard.FocusedElement is TextBox as textFocus.
         bool textFocus = Keyboard.FocusedElement is TextBox;
+        // Remember Keyboard.FocusedElement is TextBox { IsReadOnly: false } as editingText.
         bool editingText = Keyboard.FocusedElement is TextBox { IsReadOnly: false };
         // A switch expression chooses a command object, but does not execute it.
         // The "when" conditions avoid stealing ordinary text-editing shortcuts.
         ICommand? command = control ? e.Key switch
         {
+            // For Key.O, use _viewModel.OpenCommand.
             Key.O => _viewModel.OpenCommand,
+            // For Key.S, use _viewModel.SaveProjectCommand when shift is true; otherwise
+            // _viewModel.SaveBinaryCommand.
             Key.S => shift ? _viewModel.SaveProjectCommand : _viewModel.SaveBinaryCommand,
+            // For Key.E, use _viewModel.ExportTextCommand.
             Key.E => _viewModel.ExportTextCommand,
+            // For Key.G, use _viewModel.GoToOffsetCommand.
             Key.G => _viewModel.GoToOffsetCommand,
+            // For Key.Z when it is not the case that editingText is true, use _viewModel.UndoCommand.
             Key.Z when !editingText => _viewModel.UndoCommand,
+            // For Key.Y when it is not the case that editingText is true, use _viewModel.RedoCommand.
             Key.Y when !editingText => _viewModel.RedoCommand,
+            // For Key.C when it is not the case that textFocus is true, use _viewModel.CopyCommand.
             Key.C when !textFocus => _viewModel.CopyCommand,
+            // For any remaining case, use null (no value).
             _ => null
         } : e.Key == Key.Space && DataGrid.IsKeyboardFocusWithin ? _viewModel.FlipSelectionCommand : null;
+        // If command matches null, leave this method immediately.
         if (command is null) return;
         // Stop the same recognized shortcut reaching another control, even if
         // its application command is disabled (for example while a file is loading).
         e.Handled = true;
+        // If command.CanExecute(null) is true, Invoke command.Execute to perform the action stored in
+        // that command; what changes depends on which command it is.
         if (command.CanExecute(null)) command.Execute(null);
     }
 
     /// <summary>Advertises whether Windows may drop files here; other dragged data is rejected.</summary>
     private void Window_DragOver(object sender, DragEventArgs e)
     {
+        // Set e.Effects to DragDropEffects.Copy when both it is not the case that _viewModel.IsBusy is true
+        // and e.Data.GetDataPresent(DataFormats.FileDrop) is true; otherwise DragDropEffects.None.
         e.Effects = !_viewModel.IsBusy && e.Data.GetDataPresent(DataFormats.FileDrop) ? DragDropEffects.Copy : DragDropEffects.None;
+        // Set e.Handled to true (yes).
         e.Handled = true;
     }
 
     /// <summary>Opens the first dropped file through the same workflow as the Open command.</summary>
     private async void Window_Drop(object sender, DragEventArgs e)
     {
+        // Set e.Handled to true (yes).
         e.Handled = true;
+        // If both it is not the case that _viewModel.IsBusy is true and
+        // e.Data.GetData(DataFormats.FileDrop) matches string[] { Length: > 0 } paths, wait for
+        // _viewModel.OpenPathAsync to finish before continuing; await lets the thread service other work
+        // while the operation is pending.
         if (!_viewModel.IsBusy && e.Data.GetData(DataFormats.FileDrop) is string[] { Length: > 0 } paths)
+            // Wait for _viewModel.OpenPathAsync to finish before continuing; await lets the thread service
+            // other work while the operation is pending.
             await _viewModel.OpenPathAsync(paths[0]);
     }
 
@@ -160,13 +234,18 @@ public partial class MainWindow : Window
         // references so a closed window cannot keep receiving callbacks or stay alive
         // solely because a longer-lived object still knows its handlers.
         _viewModel.Session.DocumentReplaced -= DocumentReplaced;
+        // Stop sending _viewModel.Session.Selection.Changed notifications to SelectionChanged.
         _viewModel.Session.Selection.Changed -= SelectionChanged;
+        // Stop sending _viewModel.PropertyChanged notifications to ViewModelPropertyChanged.
         _viewModel.PropertyChanged -= ViewModelPropertyChanged;
+        // Stop sending _viewModel.GridFocusRequested notifications to GridFocusRequested.
         _viewModel.GridFocusRequested -= GridFocusRequested;
+        // Release _viewModel's resources or event subscriptions now that it is no longer needed.
         _viewModel.Dispose();
         // Detach the custom control too; it subscribes directly to document and
         // selection events independently of the window's subscriptions above.
         DataGrid.Document = null;
+        // Set DataGrid.Selection to a new BitExplorer.Core.BitSelection object.
         DataGrid.Selection = new BitExplorer.Core.BitSelection();
     }
 }

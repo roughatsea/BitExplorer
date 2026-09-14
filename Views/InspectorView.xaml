@@ -1,126 +1,493 @@
-<UserControl x:Class="WpfApp1.Views.InspectorView"
-             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
-             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-             xmlns:views="clr-namespace:WpfApp1.Views">
-    <!-- This panel inherits InspectorViewModel from MainWindow. Local resources
+<!-- READING THIS FILE
+     Markup describes a tree. <Name ...> begins an element; </Name> ends it.
+     <Name ... /> is a complete element with no children. Nested elements belong
+     to their surrounding element. Attributes such as Width="100" set properties.
+     Comments cover the next element and its attributes; closing tags finish that
+     same explanation. Indentation shows nesting and does not create behavior.
+     See docs/ReadingTheCode.md for a worked example and the project map. -->
+<!-- Describe a reusable panel that can be placed inside a window. x:Class links this markup to the C# type
+     WpfApp1.Views.InspectorView. The default xmlns identifies a family of markup names; its URI is a name,
+     not a file downloaded at runtime. The xmlns:x prefix identifies a family of markup names; its URI is a
+     name, not a file downloaded at runtime. The xmlns:views prefix identifies a family of markup names;
+     its URI is a name, not a file downloaded at runtime.
+-->
+<UserControl x:Class="WpfApp1.Views.InspectorView" xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation" xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml" xmlns:views="clr-namespace:WpfApp1.Views">
+  <!-- This panel inherits InspectorViewModel from MainWindow. Local resources
          below are available only within this panel; BasedOn extends App.xaml's
          normal TextBox style. Read-only text boxes still allow selecting/copying. -->
-    <UserControl.Resources>
-        <Style x:Key="ReadOnlyValue" TargetType="TextBox" BasedOn="{StaticResource {x:Type TextBox}}">
-            <Setter Property="IsReadOnly" Value="True"/><Setter Property="FontFamily" Value="Consolas"/>
-            <Setter Property="TextWrapping" Value="Wrap"/><Setter Property="Background" Value="Transparent"/>
-            <Setter Property="BorderThickness" Value="0"/><Setter Property="Padding" Value="0"/><Setter Property="Margin" Value="0,5,0,10"/>
-        </Style>
-    </UserControl.Resources>
-    <Border Background="#151D29">
-        <!-- Content may exceed the available height, so this panel scrolls
+  <!-- Set the Resources property of UserControl using the nested elements. -->
+  <UserControl.Resources>
+    <!-- Group property settings that can be reused by controls. x:Key names this reusable resource
+         ReadOnlyValue. Apply this description to TextBox controls. Get BasedOn from the shared resource
+         {StaticResource {x:Type TextBox}}.
+    -->
+    <Style x:Key="ReadOnlyValue" TargetType="TextBox" BasedOn="{StaticResource {x:Type TextBox}}">
+      <!-- Supply a property setting for the surrounding style or trigger. The property being configured or
+           tested is IsReadOnly. Use True as the setting or comparison value.
+      -->
+      <Setter Property="IsReadOnly" Value="True" />
+      <!-- Supply a property setting for the surrounding style or trigger. The property being configured or
+           tested is FontFamily. Use Consolas as the setting or comparison value.
+      -->
+      <Setter Property="FontFamily" Value="Consolas" />
+      <!-- Supply a property setting for the surrounding style or trigger. The property being configured or
+           tested is TextWrapping. Use Wrap as the setting or comparison value.
+      -->
+      <Setter Property="TextWrapping" Value="Wrap" />
+      <!-- Supply a property setting for the surrounding style or trigger. The property being configured or
+           tested is Background. Use Transparent as the setting or comparison value.
+      -->
+      <Setter Property="Background" Value="Transparent" />
+      <!-- Supply a property setting for the surrounding style or trigger. The property being configured or
+           tested is BorderThickness. Use 0 as the setting or comparison value.
+      -->
+      <Setter Property="BorderThickness" Value="0" />
+      <!-- Supply a property setting for the surrounding style or trigger. The property being configured or
+           tested is Padding. Use 0 as the setting or comparison value.
+      -->
+      <Setter Property="Padding" Value="0" />
+      <!-- Supply a property setting for the surrounding style or trigger. The property being configured or
+           tested is Margin. Use 0,5,0,10 as the setting or comparison value.
+      -->
+      <Setter Property="Margin" Value="0,5,0,10" />
+    </Style>
+  </UserControl.Resources>
+  <!-- Draw a background or border around a child control, with optional rounded corners and inner spacing.
+       Use #151D29 for Background; hexadecimal color digits describe paint, not the open file's bytes.
+  -->
+  <Border Background="#151D29">
+    <!-- Content may exceed the available height, so this panel scrolls
              independently from the byte grid and the fields list. -->
-        <ScrollViewer VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled" Padding="18,19,18,20">
-            <StackPanel>
-                <DockPanel LastChildFill="False">
-                    <TextBlock Text="INSPECTOR" Style="{StaticResource SmallLabel}"/>
-                    <TextBlock Text="{Binding SelectionCount}" DockPanel.Dock="Right" FontSize="11" Foreground="{StaticResource AccentBrush}"/>
-                </DockPanel>
-                <TextBlock Text="{Binding OffsetLabel}" FontFamily="Consolas" FontSize="12" Margin="0,16,0,4"/>
-                <TextBlock Text="{Binding SelectionLabel}" Foreground="{StaticResource MutedBrush}" FontSize="11" TextWrapping="Wrap"/>
-                <!-- Two textual representations of the same active byte. Changing
+    <!-- Show content through a scrollable viewing area. Set VerticalScrollBarVisibility to Auto; this
+         configures that aspect of the element. Set HorizontalScrollBarVisibility to Disabled; this
+         configures that aspect of the element. Padding 18,19,18,20 adds inside spacing using the same
+         one-, two-, or four-number order as Margin.
+    -->
+    <ScrollViewer VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled" Padding="18,19,18,20">
+      <!-- Place child controls one after another; the default direction is vertical. -->
+      <StackPanel>
+        <!-- Place children against the specified edges; by default the final child fills the remaining
+             area. Set LastChildFill to False; this configures that aspect of the element.
+        -->
+        <DockPanel LastChildFill="False">
+          <!-- Display text that the user cannot directly edit. Show the text “INSPECTOR”. Get Style from
+               the shared resource {StaticResource SmallLabel}.
+          -->
+          <TextBlock Text="INSPECTOR" Style="{StaticResource SmallLabel}" />
+          <!-- Display text that the user cannot directly edit. Connect Text to {Binding SelectionCount}.
+               Binding reads from DataContext unless RelativeSource names a different source; TwoWay sends
+               edits back, and PropertyChanged sends them on each change. Dock this child against the Right
+               edge of its DockPanel. Draw characters at font size 11. Get Foreground from the shared
+               resource {StaticResource AccentBrush}.
+          -->
+          <TextBlock Text="{Binding SelectionCount}" DockPanel.Dock="Right" FontSize="11" Foreground="{StaticResource AccentBrush}" />
+        </DockPanel>
+        <!-- Display text that the user cannot directly edit. Connect Text to {Binding OffsetLabel}.
+             Binding reads from DataContext unless RelativeSource names a different source; TwoWay sends
+             edits back, and PropertyChanged sends them on each change. Use the Consolas typeface. Draw
+             characters at font size 12. Margin 0,16,0,4 adds outside spacing (one number: all sides; two:
+             horizontal/vertical; four: left/top/right/bottom).
+        -->
+        <TextBlock Text="{Binding OffsetLabel}" FontFamily="Consolas" FontSize="12" Margin="0,16,0,4" />
+        <!-- Display text that the user cannot directly edit. Connect Text to {Binding SelectionLabel}.
+             Binding reads from DataContext unless RelativeSource names a different source; TwoWay sends
+             edits back, and PropertyChanged sends them on each change. Get Foreground from the shared
+             resource {StaticResource MutedBrush}. Draw characters at font size 11. TextWrapping=Wrap
+             controls whether long text continues on another line.
+        -->
+        <TextBlock Text="{Binding SelectionLabel}" Foreground="{StaticResource MutedBrush}" FontSize="11" TextWrapping="Wrap" />
+        <!-- Two textual representations of the same active byte. Changing
                      the grid's notation does not change these conversions. -->
-                <Grid Margin="0,17,0,9">
-                    <Grid.ColumnDefinitions><ColumnDefinition Width="*"/><ColumnDefinition Width="*"/></Grid.ColumnDefinitions>
-                    <StackPanel>
-                        <TextBlock Text="HEX" Style="{StaticResource SmallLabel}"/>
-                        <TextBlock x:Name="ByteHex" Text="{Binding ByteHex}" FontSize="36" FontFamily="Consolas" Foreground="{StaticResource AccentBrush}"/>
-                    </StackPanel>
-                    <StackPanel Grid.Column="1">
-                        <TextBlock Text="DECIMAL" Style="{StaticResource SmallLabel}"/>
-                        <TextBlock Text="{Binding ByteDecimal}" FontSize="36" FontFamily="Consolas"/>
-                    </StackPanel>
-                </Grid>
-                <DockPanel Margin="0,0,0,5">
-                    <TextBlock Text="MS bit" Foreground="{StaticResource MutedBrush}" FontSize="10"/>
-                    <TextBlock DockPanel.Dock="Right" Text="LS bit" Foreground="{StaticResource MutedBrush}" FontSize="10" HorizontalAlignment="Right"/>
-                </DockPanel>
-                <!-- ItemsControl repeats a DataTemplate for eight BitItemViewModels.
+        <!-- Arrange child controls in rows and columns; unspecified row or column numbers are zero. Margin
+             0,17,0,9 adds outside spacing (one number: all sides; two: horizontal/vertical; four:
+             left/top/right/bottom).
+        -->
+        <Grid Margin="0,17,0,9">
+          <!-- Set the ColumnDefinitions property of Grid using the nested elements. -->
+          <Grid.ColumnDefinitions>
+            <!-- Define one column; columns are numbered from zero in their written order. Width=* takes a
+                 weighted share of the available space.
+            -->
+            <ColumnDefinition Width="*" />
+            <!-- Define one column; columns are numbered from zero in their written order. Width=* takes a
+                 weighted share of the available space.
+            -->
+            <ColumnDefinition Width="*" />
+          </Grid.ColumnDefinitions>
+          <!-- Place child controls one after another; the default direction is vertical. -->
+          <StackPanel>
+            <!-- Display text that the user cannot directly edit. Show the text “HEX”. Get Style from the
+                 shared resource {StaticResource SmallLabel}.
+            -->
+            <TextBlock Text="HEX" Style="{StaticResource SmallLabel}" />
+            <!-- Display text that the user cannot directly edit. x:Name makes this element identifiable as
+                 ByteHex. Connect Text to {Binding ByteHex}. Binding reads from DataContext unless
+                 RelativeSource names a different source; TwoWay sends edits back, and PropertyChanged
+                 sends them on each change. Draw characters at font size 36. Use the Consolas typeface. Get
+                 Foreground from the shared resource {StaticResource AccentBrush}.
+            -->
+            <TextBlock x:Name="ByteHex" Text="{Binding ByteHex}" FontSize="36" FontFamily="Consolas" Foreground="{StaticResource AccentBrush}" />
+          </StackPanel>
+          <!-- Place child controls one after another; the default direction is vertical. Grid.Column=1
+               chooses that zero-based grid position.
+          -->
+          <StackPanel Grid.Column="1">
+            <!-- Display text that the user cannot directly edit. Show the text “DECIMAL”. Get Style from
+                 the shared resource {StaticResource SmallLabel}.
+            -->
+            <TextBlock Text="DECIMAL" Style="{StaticResource SmallLabel}" />
+            <!-- Display text that the user cannot directly edit. Connect Text to {Binding ByteDecimal}.
+                 Binding reads from DataContext unless RelativeSource names a different source; TwoWay
+                 sends edits back, and PropertyChanged sends them on each change. Draw characters at font
+                 size 36. Use the Consolas typeface.
+            -->
+            <TextBlock Text="{Binding ByteDecimal}" FontSize="36" FontFamily="Consolas" />
+          </StackPanel>
+        </Grid>
+        <!-- Place children against the specified edges; by default the final child fills the remaining
+             area. Margin 0,0,0,5 adds outside spacing (one number: all sides; two: horizontal/vertical;
+             four: left/top/right/bottom).
+        -->
+        <DockPanel Margin="0,0,0,5">
+          <!-- Display text that the user cannot directly edit. Show the text “MS bit”. Get Foreground from
+               the shared resource {StaticResource MutedBrush}. Draw characters at font size 10.
+          -->
+          <TextBlock Text="MS bit" Foreground="{StaticResource MutedBrush}" FontSize="10" />
+          <!-- Display text that the user cannot directly edit. Dock this child against the Right edge of
+               its DockPanel. Show the text “LS bit”. Get Foreground from the shared resource
+               {StaticResource MutedBrush}. Draw characters at font size 10. HorizontalAlignment=Right
+               positions the element or its contents along that axis.
+          -->
+          <TextBlock DockPanel.Dock="Right" Text="LS bit" Foreground="{StaticResource MutedBrush}" FontSize="10" HorizontalAlignment="Right" />
+        </DockPanel>
+        <!-- ItemsControl repeats a DataTemplate for eight BitItemViewModels.
                      UniformGrid gives them equal widths. Inside the template, bindings
                      refer to one bit; its FlipCommand remembers the physical position. -->
-                <ItemsControl ItemsSource="{Binding Bits}" IsEnabled="{Binding HasByte}">
-                    <ItemsControl.ItemsPanel><ItemsPanelTemplate><UniformGrid Columns="8"/></ItemsPanelTemplate></ItemsControl.ItemsPanel>
-                    <ItemsControl.ItemTemplate>
-                        <DataTemplate>
-                            <StackPanel Margin="1">
-                                <TextBlock Text="{Binding Label}" HorizontalAlignment="Center" Foreground="{StaticResource MutedBrush}" FontSize="11" Margin="0,0,0,5"/>
-                                <Button Content="{Binding Value}" Command="{Binding FlipCommand}" ToolTip="{Binding ToolTip}" AutomationProperties.Name="{Binding AutomationName}" Padding="0,8" FontFamily="Consolas" FontSize="16">
-                                    <!-- Color follows IsSet, independently of the
+        <!-- Create repeated visual entries from a collection of data items. Connect ItemsSource to
+             {Binding Bits}. Binding reads from DataContext unless RelativeSource names a different source;
+             TwoWay sends edits back, and PropertyChanged sends them on each change. Connect IsEnabled to
+             {Binding HasByte}. Binding reads from DataContext unless RelativeSource names a different
+             source; TwoWay sends edits back, and PropertyChanged sends them on each change.
+        -->
+        <ItemsControl ItemsSource="{Binding Bits}" IsEnabled="{Binding HasByte}">
+          <!-- Set the ItemsPanel property of ItemsControl using the nested elements. -->
+          <ItemsControl.ItemsPanel>
+            <!-- Choose the layout container for repeated items. -->
+            <ItemsPanelTemplate>
+              <!-- Divide the available area into equally sized cells for the children. Set Columns to 8;
+                   this configures that aspect of the element.
+              -->
+              <UniformGrid Columns="8" />
+            </ItemsPanelTemplate>
+          </ItemsControl.ItemsPanel>
+          <!-- Set the ItemTemplate property of ItemsControl using the nested elements. -->
+          <ItemsControl.ItemTemplate>
+            <!-- Describe how one data item should appear on screen. -->
+            <DataTemplate>
+              <!-- Place child controls one after another; the default direction is vertical. Margin 1 adds
+                   outside spacing (one number: all sides; two: horizontal/vertical; four:
+                   left/top/right/bottom).
+              -->
+              <StackPanel Margin="1">
+                <!-- Display text that the user cannot directly edit. Connect Text to {Binding Label}.
+                     Binding reads from DataContext unless RelativeSource names a different source; TwoWay
+                     sends edits back, and PropertyChanged sends them on each change.
+                     HorizontalAlignment=Center positions the element or its contents along that axis. Get
+                     Foreground from the shared resource {StaticResource MutedBrush}. Draw characters at
+                     font size 11. Margin 0,0,0,5 adds outside spacing (one number: all sides; two:
+                     horizontal/vertical; four: left/top/right/bottom).
+                -->
+                <TextBlock Text="{Binding Label}" HorizontalAlignment="Center" Foreground="{StaticResource MutedBrush}" FontSize="11" Margin="0,0,0,5" />
+                <!-- Provide a clickable button. Connect Content to {Binding Value}. Binding reads from
+                     DataContext unless RelativeSource names a different source; TwoWay sends edits back,
+                     and PropertyChanged sends them on each change. Connect Command to {Binding
+                     FlipCommand}. Binding reads from DataContext unless RelativeSource names a different
+                     source; TwoWay sends edits back, and PropertyChanged sends them on each change.
+                     Connect ToolTip to {Binding ToolTip}. Binding reads from DataContext unless
+                     RelativeSource names a different source; TwoWay sends edits back, and PropertyChanged
+                     sends them on each change. Connect AutomationProperties.Name to {Binding
+                     AutomationName}. Binding reads from DataContext unless RelativeSource names a
+                     different source; TwoWay sends edits back, and PropertyChanged sends them on each
+                     change. Padding 0,8 adds inside spacing using the same one-, two-, or four-number
+                     order as Margin. Use the Consolas typeface. Draw characters at font size 16.
+                -->
+                <Button Content="{Binding Value}" Command="{Binding FlipCommand}" ToolTip="{Binding ToolTip}" AutomationProperties.Name="{Binding AutomationName}" Padding="0,8" FontFamily="Consolas" FontSize="16">
+                  <!-- Color follows IsSet, independently of the
                                          printed bit number (which is configurable). -->
-                                    <Button.Style>
-                                        <Style TargetType="Button" BasedOn="{StaticResource {x:Type Button}}">
-                                            <Style.Triggers><DataTrigger Binding="{Binding IsSet}" Value="True">
-                                                <Setter Property="Background" Value="#24554D"/><Setter Property="Foreground" Value="#91F0DF"/><Setter Property="BorderBrush" Value="#439C8B"/>
-                                            </DataTrigger></Style.Triggers>
-                                        </Style>
-                                    </Button.Style>
-                                </Button>
-                            </StackPanel>
-                        </DataTemplate>
-                    </ItemsControl.ItemTemplate>
-                </ItemsControl>
-                <TextBlock Text="Click a bit to flip it. Undo is always available." Foreground="{StaticResource MutedBrush}" FontSize="10" Margin="0,8,0,14" TextWrapping="Wrap"/>
-                <TextBlock Text="{Binding ByteEditLabel}" Style="{StaticResource SmallLabel}" Margin="0,0,0,6"/>
-                <!-- Typing updates the draft string immediately, but only Apply
+                  <!-- Set the Style property of Button using the nested elements. -->
+                  <Button.Style>
+                    <!-- Group property settings that can be reused by controls. Apply this description to
+                         Button controls. Get BasedOn from the shared resource {StaticResource {x:Type
+                         Button}}.
+                    -->
+                    <Style TargetType="Button" BasedOn="{StaticResource {x:Type Button}}">
+                      <!-- Set the Triggers property of Style using the nested elements. -->
+                      <Style.Triggers>
+                        <!-- Apply the nested settings when the bound data equals the specified Value.
+                             Connect Binding to {Binding IsSet}. Binding reads from DataContext unless
+                             RelativeSource names a different source; TwoWay sends edits back, and
+                             PropertyChanged sends them on each change. Use True as the setting or
+                             comparison value.
+                        -->
+                        <DataTrigger Binding="{Binding IsSet}" Value="True">
+                          <!-- Supply a property setting for the surrounding style or trigger. The property
+                               being configured or tested is Background. Use #24554D as the setting or
+                               comparison value.
+                          -->
+                          <Setter Property="Background" Value="#24554D" />
+                          <!-- Supply a property setting for the surrounding style or trigger. The property
+                               being configured or tested is Foreground. Use #91F0DF as the setting or
+                               comparison value.
+                          -->
+                          <Setter Property="Foreground" Value="#91F0DF" />
+                          <!-- Supply a property setting for the surrounding style or trigger. The property
+                               being configured or tested is BorderBrush. Use #439C8B as the setting or
+                               comparison value.
+                          -->
+                          <Setter Property="BorderBrush" Value="#439C8B" />
+                        </DataTrigger>
+                      </Style.Triggers>
+                    </Style>
+                  </Button.Style>
+                </Button>
+              </StackPanel>
+            </DataTemplate>
+          </ItemsControl.ItemTemplate>
+        </ItemsControl>
+        <!-- Display text that the user cannot directly edit. Show the text “Click a bit to flip it. Undo
+             is always available.”. Get Foreground from the shared resource {StaticResource MutedBrush}.
+             Draw characters at font size 10. Margin 0,8,0,14 adds outside spacing (one number: all sides;
+             two: horizontal/vertical; four: left/top/right/bottom). TextWrapping=Wrap controls whether
+             long text continues on another line.
+        -->
+        <TextBlock Text="Click a bit to flip it. Undo is always available." Foreground="{StaticResource MutedBrush}" FontSize="10" Margin="0,8,0,14" TextWrapping="Wrap" />
+        <!-- Display text that the user cannot directly edit. Connect Text to {Binding ByteEditLabel}.
+             Binding reads from DataContext unless RelativeSource names a different source; TwoWay sends
+             edits back, and PropertyChanged sends them on each change. Get Style from the shared resource
+             {StaticResource SmallLabel}. Margin 0,0,0,6 adds outside spacing (one number: all sides; two:
+             horizontal/vertical; four: left/top/right/bottom).
+        -->
+        <TextBlock Text="{Binding ByteEditLabel}" Style="{StaticResource SmallLabel}" Margin="0,0,0,6" />
+        <!-- Typing updates the draft string immediately, but only Apply
                      or Enter validates the draft and changes the document byte. -->
-                <DockPanel>
-                    <Button DockPanel.Dock="Right" Content="Apply" Command="{Binding ApplyByteCommand}" Margin="8,0,0,0"/>
-                    <TextBox x:Name="ByteInput" Text="{Binding ByteInput, UpdateSourceTrigger=PropertyChanged}" IsEnabled="{Binding HasByte}" FontFamily="Consolas" AutomationProperties.Name="Byte value">
-                        <TextBox.InputBindings><KeyBinding Key="Enter" Command="{Binding ApplyByteCommand}"/></TextBox.InputBindings>
-                    </TextBox>
-                </DockPanel>
-                <Separator Margin="0,20"/>
-                <TextBlock Text="SELECTION INTERPRETATION" Style="{StaticResource SmallLabel}" Margin="0,0,0,10"/>
-                <!-- The index maps to file order, reversed byte groups, or the
+        <!-- Place children against the specified edges; by default the final child fills the remaining
+             area.
+        -->
+        <DockPanel>
+          <!-- Provide a clickable button. Dock this child against the Right edge of its DockPanel. Use
+               “Apply” as the displayed content. Connect Command to {Binding ApplyByteCommand}. Binding
+               reads from DataContext unless RelativeSource names a different source; TwoWay sends edits
+               back, and PropertyChanged sends them on each change. Margin 8,0,0,0 adds outside spacing
+               (one number: all sides; two: horizontal/vertical; four: left/top/right/bottom).
+          -->
+          <Button DockPanel.Dock="Right" Content="Apply" Command="{Binding ApplyByteCommand}" Margin="8,0,0,0" />
+          <!-- Provide an editable text box. x:Name makes this element identifiable as ByteInput. Connect
+               Text to {Binding ByteInput, UpdateSourceTrigger=PropertyChanged}. Binding reads from
+               DataContext unless RelativeSource names a different source; TwoWay sends edits back, and
+               PropertyChanged sends them on each change. Connect IsEnabled to {Binding HasByte}. Binding
+               reads from DataContext unless RelativeSource names a different source; TwoWay sends edits
+               back, and PropertyChanged sends them on each change. Use the Consolas typeface. Give
+               accessibility tools the name “Byte value”.
+          -->
+          <TextBox x:Name="ByteInput" Text="{Binding ByteInput, UpdateSourceTrigger=PropertyChanged}" IsEnabled="{Binding HasByte}" FontFamily="Consolas" AutomationProperties.Name="Byte value">
+            <!-- Set the InputBindings property of TextBox using the nested elements. -->
+            <TextBox.InputBindings>
+              <!-- Connect a keyboard gesture to an application command. x:Key names this reusable resource
+                   Enter. Connect Command to {Binding ApplyByteCommand}. Binding reads from DataContext
+                   unless RelativeSource names a different source; TwoWay sends edits back, and
+                   PropertyChanged sends them on each change.
+              -->
+              <KeyBinding Key="Enter" Command="{Binding ApplyByteCommand}" />
+            </TextBox.InputBindings>
+          </TextBox>
+        </DockPanel>
+        <!-- Separate neighboring menu entries with a visual dividing line. Margin 0,20 adds outside
+             spacing (one number: all sides; two: horizontal/vertical; four: left/top/right/bottom).
+        -->
+        <Separator Margin="0,20" />
+        <!-- Display text that the user cannot directly edit. Show the text “SELECTION INTERPRETATION”. Get
+             Style from the shared resource {StaticResource SmallLabel}. Margin 0,0,0,10 adds outside
+             spacing (one number: all sides; two: horizontal/vertical; four: left/top/right/bottom).
+        -->
+        <TextBlock Text="SELECTION INTERPRETATION" Style="{StaticResource SmallLabel}" Margin="0,0,0,10" />
+        <!-- The index maps to file order, reversed byte groups, or the
                      named field's explicit bit order. Saved mapping requires a field. -->
-                <ComboBox SelectedIndex="{Binding InterpretationOrderIndex}">
-                    <ComboBoxItem Content="Big-endian · file order"/>
-                    <ComboBoxItem Content="Little-endian · reverse bytes"/>
-                    <ComboBoxItem Content="Saved field mapping" IsEnabled="{Binding CanUseSavedFieldMapping}"/>
-                </ComboBox>
-                <TextBlock Text="{Binding SignificanceLabel}" FontSize="11" Foreground="{StaticResource MutedBrush}" Margin="0,9,0,12" TextWrapping="Wrap"/>
-                <TextBlock Text="UNSIGNED DECIMAL" Style="{StaticResource SmallLabel}"/>
-                <!-- TextBox.Text normally supports writing back. Mode=OneWay is
+        <!-- Provide a dropdown list of choices. Connect SelectedIndex to {Binding
+             InterpretationOrderIndex}. Binding reads from DataContext unless RelativeSource names a
+             different source; TwoWay sends edits back, and PropertyChanged sends them on each change.
+        -->
+        <ComboBox SelectedIndex="{Binding InterpretationOrderIndex}">
+          <!-- Supply one choice for the surrounding dropdown list. Use “Big-endian · file order” as the
+               displayed content.
+          -->
+          <ComboBoxItem Content="Big-endian · file order" />
+          <!-- Supply one choice for the surrounding dropdown list. Use “Little-endian · reverse bytes” as
+               the displayed content.
+          -->
+          <ComboBoxItem Content="Little-endian · reverse bytes" />
+          <!-- Supply one choice for the surrounding dropdown list. Use “Saved field mapping” as the
+               displayed content. Connect IsEnabled to {Binding CanUseSavedFieldMapping}. Binding reads
+               from DataContext unless RelativeSource names a different source; TwoWay sends edits back,
+               and PropertyChanged sends them on each change.
+          -->
+          <ComboBoxItem Content="Saved field mapping" IsEnabled="{Binding CanUseSavedFieldMapping}" />
+        </ComboBox>
+        <!-- Display text that the user cannot directly edit. Connect Text to {Binding SignificanceLabel}.
+             Binding reads from DataContext unless RelativeSource names a different source; TwoWay sends
+             edits back, and PropertyChanged sends them on each change. Draw characters at font size 11.
+             Get Foreground from the shared resource {StaticResource MutedBrush}. Margin 0,9,0,12 adds
+             outside spacing (one number: all sides; two: horizontal/vertical; four:
+             left/top/right/bottom). TextWrapping=Wrap controls whether long text continues on another
+             line.
+        -->
+        <TextBlock Text="{Binding SignificanceLabel}" FontSize="11" Foreground="{StaticResource MutedBrush}" Margin="0,9,0,12" TextWrapping="Wrap" />
+        <!-- Display text that the user cannot directly edit. Show the text “UNSIGNED DECIMAL”. Get Style
+             from the shared resource {StaticResource SmallLabel}.
+        -->
+        <TextBlock Text="UNSIGNED DECIMAL" Style="{StaticResource SmallLabel}" />
+        <!-- TextBox.Text normally supports writing back. Mode=OneWay is
                      explicit here because these values are computed, getter-only properties. -->
-                <TextBox Text="{Binding SelectionDecimal, Mode=OneWay}" Style="{StaticResource ReadOnlyValue}"/>
-                <TextBlock Text="SIGNED DECIMAL" Style="{StaticResource SmallLabel}"/>
-                <TextBox Text="{Binding SelectionSigned, Mode=OneWay}" Style="{StaticResource ReadOnlyValue}"/>
-                <TextBlock Text="HEX" Style="{StaticResource SmallLabel}"/>
-                <TextBox Text="{Binding SelectionHex, Mode=OneWay}" Style="{StaticResource ReadOnlyValue}"/>
-                <TextBlock Text="{Binding FieldEnds}" FontSize="11" Foreground="{StaticResource MutedBrush}" TextWrapping="Wrap"/>
-                <!-- Label editing belongs to the sibling Fields view model. Walk
+        <!-- Provide an editable text box. Connect Text to {Binding SelectionDecimal, Mode=OneWay}. Binding
+             reads from DataContext unless RelativeSource names a different source; TwoWay sends edits
+             back, and PropertyChanged sends them on each change. Get Style from the shared resource
+             {StaticResource ReadOnlyValue}.
+        -->
+        <TextBox Text="{Binding SelectionDecimal, Mode=OneWay}" Style="{StaticResource ReadOnlyValue}" />
+        <!-- Display text that the user cannot directly edit. Show the text “SIGNED DECIMAL”. Get Style
+             from the shared resource {StaticResource SmallLabel}.
+        -->
+        <TextBlock Text="SIGNED DECIMAL" Style="{StaticResource SmallLabel}" />
+        <!-- Provide an editable text box. Connect Text to {Binding SelectionSigned, Mode=OneWay}. Binding
+             reads from DataContext unless RelativeSource names a different source; TwoWay sends edits
+             back, and PropertyChanged sends them on each change. Get Style from the shared resource
+             {StaticResource ReadOnlyValue}.
+        -->
+        <TextBox Text="{Binding SelectionSigned, Mode=OneWay}" Style="{StaticResource ReadOnlyValue}" />
+        <!-- Display text that the user cannot directly edit. Show the text “HEX”. Get Style from the
+             shared resource {StaticResource SmallLabel}.
+        -->
+        <TextBlock Text="HEX" Style="{StaticResource SmallLabel}" />
+        <!-- Provide an editable text box. Connect Text to {Binding SelectionHex, Mode=OneWay}. Binding
+             reads from DataContext unless RelativeSource names a different source; TwoWay sends edits
+             back, and PropertyChanged sends them on each change. Get Style from the shared resource
+             {StaticResource ReadOnlyValue}.
+        -->
+        <TextBox Text="{Binding SelectionHex, Mode=OneWay}" Style="{StaticResource ReadOnlyValue}" />
+        <!-- Display text that the user cannot directly edit. Connect Text to {Binding FieldEnds}. Binding
+             reads from DataContext unless RelativeSource names a different source; TwoWay sends edits
+             back, and PropertyChanged sends them on each change. Draw characters at font size 11. Get
+             Foreground from the shared resource {StaticResource MutedBrush}. TextWrapping=Wrap controls
+             whether long text continues on another line.
+        -->
+        <TextBlock Text="{Binding FieldEnds}" FontSize="11" Foreground="{StaticResource MutedBrush}" TextWrapping="Wrap" />
+        <!-- Label editing belongs to the sibling Fields view model. Walk
                      up to the Window and read its DataContext.Fields command instead
                      of duplicating label logic in the inspector. -->
-                <Button Content="+  Label selected bits" Command="{Binding DataContext.Fields.AddLabelCommand, RelativeSource={RelativeSource AncestorType=Window}}" Margin="0,13,0,0"/>
-                <!-- The converter maps true to Visible and false to Collapsed,
+        <!-- Provide a clickable button. Use “+ Label selected bits” as the displayed content. Connect
+             Command to {Binding DataContext.Fields.AddLabelCommand, RelativeSource={RelativeSource
+             AncestorType=Window}}. Binding reads from DataContext unless RelativeSource names a different
+             source; TwoWay sends edits back, and PropertyChanged sends them on each change. Margin
+             0,13,0,0 adds outside spacing (one number: all sides; two: horizontal/vertical; four:
+             left/top/right/bottom).
+        -->
+        <Button Content="+  Label selected bits" Command="{Binding DataContext.Fields.AddLabelCommand, RelativeSource={RelativeSource AncestorType=Window}}" Margin="0,13,0,0" />
+        <!-- The converter maps true to Visible and false to Collapsed,
                      which also removes the unused panel from the layout. -->
-                <StackPanel Visibility="{Binding HasSelectedField, Converter={StaticResource BooleanVisibility}}">
-                    <Separator Margin="0,20"/>
-                    <TextBlock Text="{Binding SelectedFieldName}" FontSize="16" FontWeight="SemiBold"/>
-                    <TextBlock Text="{Binding FieldNotes}" TextWrapping="Wrap" Foreground="{StaticResource MutedBrush}" Margin="0,7,0,12"/>
-                    <TextBlock Text="EDIT FIELD VALUE · DECIMAL OR 0xHEX" Style="{StaticResource SmallLabel}" Margin="0,0,0,6"/>
-                    <DockPanel>
-                        <Button Content="Apply" DockPanel.Dock="Right" Command="{Binding ApplyFieldCommand}" Margin="8,0,0,0"/>
-                        <TextBox Text="{Binding FieldValueInput, UpdateSourceTrigger=PropertyChanged}" FontFamily="Consolas" AutomationProperties.Name="Field value">
-                            <TextBox.InputBindings><KeyBinding Key="Enter" Command="{Binding ApplyFieldCommand}"/></TextBox.InputBindings>
-                        </TextBox>
-                    </DockPanel>
-                    <StackPanel Orientation="Horizontal" Margin="0,10,0,0">
-                        <Button Content="Edit label…" Command="{Binding DataContext.Fields.EditLabelCommand, RelativeSource={RelativeSource AncestorType=Window}}" Margin="0,0,7,0"/>
-                        <Button Content="Delete label" Command="{Binding DataContext.Fields.DeleteLabelCommand, RelativeSource={RelativeSource AncestorType=Window}}"/>
-                    </StackPanel>
-                </StackPanel>
-                <!-- A separate view model owns display preferences. Assign it as
+        <!-- Place child controls one after another; the default direction is vertical. Connect Visibility
+             to {Binding HasSelectedField, Converter={StaticResource BooleanVisibility}}. Binding reads
+             from DataContext unless RelativeSource names a different source; TwoWay sends edits back, and
+             PropertyChanged sends them on each change.
+        -->
+        <StackPanel Visibility="{Binding HasSelectedField, Converter={StaticResource BooleanVisibility}}">
+          <!-- Separate neighboring menu entries with a visual dividing line. Margin 0,20 adds outside
+               spacing (one number: all sides; two: horizontal/vertical; four: left/top/right/bottom).
+          -->
+          <Separator Margin="0,20" />
+          <!-- Display text that the user cannot directly edit. Connect Text to {Binding
+               SelectedFieldName}. Binding reads from DataContext unless RelativeSource names a different
+               source; TwoWay sends edits back, and PropertyChanged sends them on each change. Draw
+               characters at font size 16. Use SemiBold text weight.
+          -->
+          <TextBlock Text="{Binding SelectedFieldName}" FontSize="16" FontWeight="SemiBold" />
+          <!-- Display text that the user cannot directly edit. Connect Text to {Binding FieldNotes}.
+               Binding reads from DataContext unless RelativeSource names a different source; TwoWay sends
+               edits back, and PropertyChanged sends them on each change. TextWrapping=Wrap controls
+               whether long text continues on another line. Get Foreground from the shared resource
+               {StaticResource MutedBrush}. Margin 0,7,0,12 adds outside spacing (one number: all sides;
+               two: horizontal/vertical; four: left/top/right/bottom).
+          -->
+          <TextBlock Text="{Binding FieldNotes}" TextWrapping="Wrap" Foreground="{StaticResource MutedBrush}" Margin="0,7,0,12" />
+          <!-- Display text that the user cannot directly edit. Show the text “EDIT FIELD VALUE · DECIMAL
+               OR 0xHEX”. Get Style from the shared resource {StaticResource SmallLabel}. Margin 0,0,0,6
+               adds outside spacing (one number: all sides; two: horizontal/vertical; four:
+               left/top/right/bottom).
+          -->
+          <TextBlock Text="EDIT FIELD VALUE · DECIMAL OR 0xHEX" Style="{StaticResource SmallLabel}" Margin="0,0,0,6" />
+          <!-- Place children against the specified edges; by default the final child fills the remaining
+               area.
+          -->
+          <DockPanel>
+            <!-- Provide a clickable button. Use “Apply” as the displayed content. Dock this child against
+                 the Right edge of its DockPanel. Connect Command to {Binding ApplyFieldCommand}. Binding
+                 reads from DataContext unless RelativeSource names a different source; TwoWay sends edits
+                 back, and PropertyChanged sends them on each change. Margin 8,0,0,0 adds outside spacing
+                 (one number: all sides; two: horizontal/vertical; four: left/top/right/bottom).
+            -->
+            <Button Content="Apply" DockPanel.Dock="Right" Command="{Binding ApplyFieldCommand}" Margin="8,0,0,0" />
+            <!-- Provide an editable text box. Connect Text to {Binding FieldValueInput,
+                 UpdateSourceTrigger=PropertyChanged}. Binding reads from DataContext unless RelativeSource
+                 names a different source; TwoWay sends edits back, and PropertyChanged sends them on each
+                 change. Use the Consolas typeface. Give accessibility tools the name “Field value”.
+            -->
+            <TextBox Text="{Binding FieldValueInput, UpdateSourceTrigger=PropertyChanged}" FontFamily="Consolas" AutomationProperties.Name="Field value">
+              <!-- Set the InputBindings property of TextBox using the nested elements. -->
+              <TextBox.InputBindings>
+                <!-- Connect a keyboard gesture to an application command. x:Key names this reusable
+                     resource Enter. Connect Command to {Binding ApplyFieldCommand}. Binding reads from
+                     DataContext unless RelativeSource names a different source; TwoWay sends edits back,
+                     and PropertyChanged sends them on each change.
+                -->
+                <KeyBinding Key="Enter" Command="{Binding ApplyFieldCommand}" />
+              </TextBox.InputBindings>
+            </TextBox>
+          </DockPanel>
+          <!-- Place child controls one after another; the default direction is vertical. Arrange or move
+               along the horizontal direction. Margin 0,10,0,0 adds outside spacing (one number: all sides;
+               two: horizontal/vertical; four: left/top/right/bottom).
+          -->
+          <StackPanel Orientation="Horizontal" Margin="0,10,0,0">
+            <!-- Provide a clickable button. Use “Edit label…” as the displayed content. Connect Command to
+                 {Binding DataContext.Fields.EditLabelCommand, RelativeSource={RelativeSource
+                 AncestorType=Window}}. Binding reads from DataContext unless RelativeSource names a
+                 different source; TwoWay sends edits back, and PropertyChanged sends them on each change.
+                 Margin 0,0,7,0 adds outside spacing (one number: all sides; two: horizontal/vertical;
+                 four: left/top/right/bottom).
+            -->
+            <Button Content="Edit label…" Command="{Binding DataContext.Fields.EditLabelCommand, RelativeSource={RelativeSource AncestorType=Window}}" Margin="0,0,7,0" />
+            <!-- Provide a clickable button. Use “Delete label” as the displayed content. Connect Command
+                 to {Binding DataContext.Fields.DeleteLabelCommand, RelativeSource={RelativeSource
+                 AncestorType=Window}}. Binding reads from DataContext unless RelativeSource names a
+                 different source; TwoWay sends edits back, and PropertyChanged sends them on each change.
+            -->
+            <Button Content="Delete label" Command="{Binding DataContext.Fields.DeleteLabelCommand, RelativeSource={RelativeSource AncestorType=Window}}" />
+          </StackPanel>
+        </StackPanel>
+        <!-- A separate view model owns display preferences. Assign it as
                      the nested panel's context instead of the inspector context. -->
-                <Expander x:Name="DisplayExpander" Header="Display settings" Margin="0,22,0,0" Foreground="{StaticResource TextBrush}">
-                    <views:DisplayOptionsView DataContext="{Binding DataContext.Display, RelativeSource={RelativeSource AncestorType=Window}}"/>
-                </Expander>
-            </StackPanel>
-        </ScrollViewer>
-    </Border>
+        <!-- Supply the Expander setting using the contents below. x:Name makes this element identifiable
+             as DisplayExpander. Label the entry “Display settings”. Margin 0,22,0,0 adds outside spacing
+             (one number: all sides; two: horizontal/vertical; four: left/top/right/bottom). Get Foreground
+             from the shared resource {StaticResource TextBrush}.
+        -->
+        <Expander x:Name="DisplayExpander" Header="Display settings" Margin="0,22,0,0" Foreground="{StaticResource TextBrush}">
+          <!-- Supply the DisplayOptionsView setting using the contents below. Connect DataContext to
+               {Binding DataContext.Display, RelativeSource={RelativeSource AncestorType=Window}}. Binding
+               reads from DataContext unless RelativeSource names a different source; TwoWay sends edits
+               back, and PropertyChanged sends them on each change.
+          -->
+          <views:DisplayOptionsView DataContext="{Binding DataContext.Display, RelativeSource={RelativeSource AncestorType=Window}}" />
+        </Expander>
+      </StackPanel>
+    </ScrollViewer>
+  </Border>
 </UserControl>

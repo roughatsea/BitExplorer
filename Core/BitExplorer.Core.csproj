@@ -1,12 +1,28 @@
+<!-- READING THIS FILE
+     Markup describes a tree. <Name ...> begins an element; </Name> ends it.
+     <Name ... /> is a complete element with no children. Nested elements belong
+     to their surrounding element. Attributes such as Width="100" set properties.
+     Comments cover the next element and its attributes; closing tags finish that
+     same explanation. Indentation shows nesting and does not create behavior.
+     See docs/ReadingTheCode.md for a worked example and the project map. -->
+<!-- Describe one buildable project and the tools used to compile it. Use Microsoft.NET.Sdk for the
+     standard build rules.
+-->
 <Project Sdk="Microsoft.NET.Sdk">
   <!-- This is the reusable data library. It deliberately targets plain .NET,
        rather than Windows/WPF, so its binary and formatting rules can be tested
        without a desktop application or downloaded UI packages. -->
+  <!-- Group named build settings; each child gives a setting its value. -->
   <PropertyGroup>
+    <!-- Compile against net10.0; this selects the available .NET APIs and, with -windows, the Windows
+         target.
+    -->
     <TargetFramework>net10.0</TargetFramework>
     <!-- Generate common using directives, and have the compiler warn about
          references that might be null before they are used. -->
+    <!-- Make common C# namespaces available automatically in this project. -->
     <ImplicitUsings>enable</ImplicitUsings>
+    <!-- Enable compiler checks for references that could be null (missing). -->
     <Nullable>enable</Nullable>
   </PropertyGroup>
 </Project>

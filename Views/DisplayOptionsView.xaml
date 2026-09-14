@@ -1,45 +1,167 @@
-<UserControl x:Class="WpfApp1.Views.DisplayOptionsView"
-             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
-             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
-    <!-- This view expects DisplaySettingsViewModel as DataContext. A StackPanel
+<!-- READING THIS FILE
+     Markup describes a tree. <Name ...> begins an element; </Name> ends it.
+     <Name ... /> is a complete element with no children. Nested elements belong
+     to their surrounding element. Attributes such as Width="100" set properties.
+     Comments cover the next element and its attributes; closing tags finish that
+     same explanation. Indentation shows nesting and does not create behavior.
+     See docs/ReadingTheCode.md for a worked example and the project map. -->
+<!-- Describe a reusable panel that can be placed inside a window. x:Class links this markup to the C# type
+     WpfApp1.Views.DisplayOptionsView. The default xmlns identifies a family of markup names; its URI is a
+     name, not a file downloaded at runtime. The xmlns:x prefix identifies a family of markup names; its
+     URI is a name, not a file downloaded at runtime.
+-->
+<UserControl x:Class="WpfApp1.Views.DisplayOptionsView" xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation" xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+  <!-- This view expects DisplaySettingsViewModel as DataContext. A StackPanel
          arranges children vertically. Selection/checkbox bindings use the WPF
          controls' normal two-way behavior, sending choices back to the view model. -->
-    <StackPanel Margin="0,12,0,0">
-        <TextBlock Text="OFFSET BASE" Style="{StaticResource SmallLabel}" Margin="0,0,0,5"/>
-        <ComboBox SelectedIndex="{Binding OffsetBaseIndex}">
-            <ComboBoxItem Content="Hexadecimal"/><ComboBoxItem Content="Decimal"/>
-        </ComboBox>
-        <!-- Numbering changes the ruler's labels, not the stored bits or bit weights. -->
-        <TextBlock Text="BIT NUMBERING" Style="{StaticResource SmallLabel}" Margin="0,13,0,5"/>
-        <ComboBox SelectedIndex="{Binding BitNumberingIndex}">
-            <ComboBoxItem Content="LSB is bit 0 · 7 → 0"/><ComboBoxItem Content="MSB is bit 0 · 0 → 7"/>
-        </ComboBox>
-        <!-- These switches affect both grid rendering and whole-file text export. -->
-        <CheckBox Content="Offset column" IsChecked="{Binding ShowOffsets}" Margin="0,13,0,0"/>
-        <CheckBox Content="ASCII column" IsChecked="{Binding ShowAscii}" Margin="0,9,0,0"/>
-        <CheckBox Content="Position ruler" IsChecked="{Binding ShowRuler}" Margin="0,9,0,0"/>
-        <CheckBox Content="Field annotations in grid / export" IsChecked="{Binding ShowAnnotations}" Margin="0,9,0,0"/>
-        <TextBlock Text="COLUMN WIDTHS · PIXELS" Style="{StaticResource SmallLabel}" Margin="0,16,0,6"/>
-        <!-- Width boxes contain draft text. UpdateSourceTrigger=PropertyChanged
+  <!-- Place child controls one after another; the default direction is vertical. Margin 0,12,0,0 adds
+       outside spacing (one number: all sides; two: horizontal/vertical; four: left/top/right/bottom).
+  -->
+  <StackPanel Margin="0,12,0,0">
+    <!-- Display text that the user cannot directly edit. Show the text “OFFSET BASE”. Get Style from the
+         shared resource {StaticResource SmallLabel}. Margin 0,0,0,5 adds outside spacing (one number: all
+         sides; two: horizontal/vertical; four: left/top/right/bottom).
+    -->
+    <TextBlock Text="OFFSET BASE" Style="{StaticResource SmallLabel}" Margin="0,0,0,5" />
+    <!-- Provide a dropdown list of choices. Connect SelectedIndex to {Binding OffsetBaseIndex}. Binding
+         reads from DataContext unless RelativeSource names a different source; TwoWay sends edits back,
+         and PropertyChanged sends them on each change.
+    -->
+    <ComboBox SelectedIndex="{Binding OffsetBaseIndex}">
+      <!-- Supply one choice for the surrounding dropdown list. Use “Hexadecimal” as the displayed content. -->
+      <ComboBoxItem Content="Hexadecimal" />
+      <!-- Supply one choice for the surrounding dropdown list. Use “Decimal” as the displayed content. -->
+      <ComboBoxItem Content="Decimal" />
+    </ComboBox>
+    <!-- Numbering changes the ruler's labels, not the stored bits or bit weights. -->
+    <!-- Display text that the user cannot directly edit. Show the text “BIT NUMBERING”. Get Style from the
+         shared resource {StaticResource SmallLabel}. Margin 0,13,0,5 adds outside spacing (one number: all
+         sides; two: horizontal/vertical; four: left/top/right/bottom).
+    -->
+    <TextBlock Text="BIT NUMBERING" Style="{StaticResource SmallLabel}" Margin="0,13,0,5" />
+    <!-- Provide a dropdown list of choices. Connect SelectedIndex to {Binding BitNumberingIndex}. Binding
+         reads from DataContext unless RelativeSource names a different source; TwoWay sends edits back,
+         and PropertyChanged sends them on each change.
+    -->
+    <ComboBox SelectedIndex="{Binding BitNumberingIndex}">
+      <!-- Supply one choice for the surrounding dropdown list. Use “LSB is bit 0 · 7 → 0” as the displayed
+           content.
+      -->
+      <ComboBoxItem Content="LSB is bit 0 · 7 → 0" />
+      <!-- Supply one choice for the surrounding dropdown list. Use “MSB is bit 0 · 0 → 7” as the displayed
+           content.
+      -->
+      <ComboBoxItem Content="MSB is bit 0 · 0 → 7" />
+    </ComboBox>
+    <!-- These switches affect both grid rendering and whole-file text export. -->
+    <!-- Provide a checked/unchecked choice. Use “Offset column” as the displayed content. Connect
+         IsChecked to {Binding ShowOffsets}. Binding reads from DataContext unless RelativeSource names a
+         different source; TwoWay sends edits back, and PropertyChanged sends them on each change. Margin
+         0,13,0,0 adds outside spacing (one number: all sides; two: horizontal/vertical; four:
+         left/top/right/bottom).
+    -->
+    <CheckBox Content="Offset column" IsChecked="{Binding ShowOffsets}" Margin="0,13,0,0" />
+    <!-- Provide a checked/unchecked choice. Use “ASCII column” as the displayed content. Connect IsChecked
+         to {Binding ShowAscii}. Binding reads from DataContext unless RelativeSource names a different
+         source; TwoWay sends edits back, and PropertyChanged sends them on each change. Margin 0,9,0,0
+         adds outside spacing (one number: all sides; two: horizontal/vertical; four:
+         left/top/right/bottom).
+    -->
+    <CheckBox Content="ASCII column" IsChecked="{Binding ShowAscii}" Margin="0,9,0,0" />
+    <!-- Provide a checked/unchecked choice. Use “Position ruler” as the displayed content. Connect
+         IsChecked to {Binding ShowRuler}. Binding reads from DataContext unless RelativeSource names a
+         different source; TwoWay sends edits back, and PropertyChanged sends them on each change. Margin
+         0,9,0,0 adds outside spacing (one number: all sides; two: horizontal/vertical; four:
+         left/top/right/bottom).
+    -->
+    <CheckBox Content="Position ruler" IsChecked="{Binding ShowRuler}" Margin="0,9,0,0" />
+    <!-- Provide a checked/unchecked choice. Use “Field annotations in grid / export” as the displayed
+         content. Connect IsChecked to {Binding ShowAnnotations}. Binding reads from DataContext unless
+         RelativeSource names a different source; TwoWay sends edits back, and PropertyChanged sends them
+         on each change. Margin 0,9,0,0 adds outside spacing (one number: all sides; two:
+         horizontal/vertical; four: left/top/right/bottom).
+    -->
+    <CheckBox Content="Field annotations in grid / export" IsChecked="{Binding ShowAnnotations}" Margin="0,9,0,0" />
+    <!-- Display text that the user cannot directly edit. Show the text “COLUMN WIDTHS · PIXELS”. Get Style
+         from the shared resource {StaticResource SmallLabel}. Margin 0,16,0,6 adds outside spacing (one
+         number: all sides; two: horizontal/vertical; four: left/top/right/bottom).
+    -->
+    <TextBlock Text="COLUMN WIDTHS · PIXELS" Style="{StaticResource SmallLabel}" Margin="0,16,0,6" />
+    <!-- Width boxes contain draft text. UpdateSourceTrigger=PropertyChanged
              copies each keystroke into that draft; Apply widths parses all three
              together before changing settings. AutomationProperties.Name supplies
              a useful name to accessibility tools even without a nearby text label. -->
-        <Grid>
-            <Grid.ColumnDefinitions><ColumnDefinition/><ColumnDefinition/><ColumnDefinition/></Grid.ColumnDefinitions>
-            <StackPanel>
-                <TextBlock Text="Offset" Foreground="{StaticResource MutedBrush}" FontSize="11"/>
-                <TextBox Text="{Binding OffsetWidthInput, UpdateSourceTrigger=PropertyChanged}" Margin="0,5,6,0" AutomationProperties.Name="Offset column width"/>
-            </StackPanel>
-            <StackPanel Grid.Column="1">
-                <TextBlock Text="Data" Foreground="{StaticResource MutedBrush}" FontSize="11"/>
-                <TextBox Text="{Binding DataWidthInput, UpdateSourceTrigger=PropertyChanged}" Margin="0,5,6,0" AutomationProperties.Name="Data column width"/>
-            </StackPanel>
-            <StackPanel Grid.Column="2">
-                <TextBlock Text="ASCII" Foreground="{StaticResource MutedBrush}" FontSize="11"/>
-                <TextBox Text="{Binding AsciiWidthInput, UpdateSourceTrigger=PropertyChanged}" Margin="0,5,0,0" AutomationProperties.Name="ASCII column width"/>
-            </StackPanel>
-        </Grid>
-        <Button Content="Apply widths" Command="{Binding ApplyWidthsCommand}" Margin="0,9,0,0"/>
-        <TextBlock Text="You can also drag the dividers in the grid header." Foreground="{StaticResource MutedBrush}" FontSize="11" TextWrapping="Wrap" Margin="0,8,0,0"/>
-    </StackPanel>
+    <!-- Arrange child controls in rows and columns; unspecified row or column numbers are zero. -->
+    <Grid>
+      <!-- Set the ColumnDefinitions property of Grid using the nested elements. -->
+      <Grid.ColumnDefinitions>
+        <!-- Define one column; columns are numbered from zero in their written order. -->
+        <ColumnDefinition />
+        <!-- Define one column; columns are numbered from zero in their written order. -->
+        <ColumnDefinition />
+        <!-- Define one column; columns are numbered from zero in their written order. -->
+        <ColumnDefinition />
+      </Grid.ColumnDefinitions>
+      <!-- Place child controls one after another; the default direction is vertical. -->
+      <StackPanel>
+        <!-- Display text that the user cannot directly edit. Show the text “Offset”. Get Foreground from
+             the shared resource {StaticResource MutedBrush}. Draw characters at font size 11.
+        -->
+        <TextBlock Text="Offset" Foreground="{StaticResource MutedBrush}" FontSize="11" />
+        <!-- Provide an editable text box. Connect Text to {Binding OffsetWidthInput,
+             UpdateSourceTrigger=PropertyChanged}. Binding reads from DataContext unless RelativeSource
+             names a different source; TwoWay sends edits back, and PropertyChanged sends them on each
+             change. Margin 0,5,6,0 adds outside spacing (one number: all sides; two: horizontal/vertical;
+             four: left/top/right/bottom). Give accessibility tools the name “Offset column width”.
+        -->
+        <TextBox Text="{Binding OffsetWidthInput, UpdateSourceTrigger=PropertyChanged}" Margin="0,5,6,0" AutomationProperties.Name="Offset column width" />
+      </StackPanel>
+      <!-- Place child controls one after another; the default direction is vertical. Grid.Column=1 chooses
+           that zero-based grid position.
+      -->
+      <StackPanel Grid.Column="1">
+        <!-- Display text that the user cannot directly edit. Show the text “Data”. Get Foreground from the
+             shared resource {StaticResource MutedBrush}. Draw characters at font size 11.
+        -->
+        <TextBlock Text="Data" Foreground="{StaticResource MutedBrush}" FontSize="11" />
+        <!-- Provide an editable text box. Connect Text to {Binding DataWidthInput,
+             UpdateSourceTrigger=PropertyChanged}. Binding reads from DataContext unless RelativeSource
+             names a different source; TwoWay sends edits back, and PropertyChanged sends them on each
+             change. Margin 0,5,6,0 adds outside spacing (one number: all sides; two: horizontal/vertical;
+             four: left/top/right/bottom). Give accessibility tools the name “Data column width”.
+        -->
+        <TextBox Text="{Binding DataWidthInput, UpdateSourceTrigger=PropertyChanged}" Margin="0,5,6,0" AutomationProperties.Name="Data column width" />
+      </StackPanel>
+      <!-- Place child controls one after another; the default direction is vertical. Grid.Column=2 chooses
+           that zero-based grid position.
+      -->
+      <StackPanel Grid.Column="2">
+        <!-- Display text that the user cannot directly edit. Show the text “ASCII”. Get Foreground from
+             the shared resource {StaticResource MutedBrush}. Draw characters at font size 11.
+        -->
+        <TextBlock Text="ASCII" Foreground="{StaticResource MutedBrush}" FontSize="11" />
+        <!-- Provide an editable text box. Connect Text to {Binding AsciiWidthInput,
+             UpdateSourceTrigger=PropertyChanged}. Binding reads from DataContext unless RelativeSource
+             names a different source; TwoWay sends edits back, and PropertyChanged sends them on each
+             change. Margin 0,5,0,0 adds outside spacing (one number: all sides; two: horizontal/vertical;
+             four: left/top/right/bottom). Give accessibility tools the name “ASCII column width”.
+        -->
+        <TextBox Text="{Binding AsciiWidthInput, UpdateSourceTrigger=PropertyChanged}" Margin="0,5,0,0" AutomationProperties.Name="ASCII column width" />
+      </StackPanel>
+    </Grid>
+    <!-- Provide a clickable button. Use “Apply widths” as the displayed content. Connect Command to
+         {Binding ApplyWidthsCommand}. Binding reads from DataContext unless RelativeSource names a
+         different source; TwoWay sends edits back, and PropertyChanged sends them on each change. Margin
+         0,9,0,0 adds outside spacing (one number: all sides; two: horizontal/vertical; four:
+         left/top/right/bottom).
+    -->
+    <Button Content="Apply widths" Command="{Binding ApplyWidthsCommand}" Margin="0,9,0,0" />
+    <!-- Display text that the user cannot directly edit. Show the text “You can also drag the dividers in
+         the grid header.”. Get Foreground from the shared resource {StaticResource MutedBrush}. Draw
+         characters at font size 11. TextWrapping=Wrap controls whether long text continues on another
+         line. Margin 0,8,0,0 adds outside spacing (one number: all sides; two: horizontal/vertical; four:
+         left/top/right/bottom).
+    -->
+    <TextBlock Text="You can also drag the dividers in the grid header." Foreground="{StaticResource MutedBrush}" FontSize="11" TextWrapping="Wrap" Margin="0,8,0,0" />
+  </StackPanel>
 </UserControl>
